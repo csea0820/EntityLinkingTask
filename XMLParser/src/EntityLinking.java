@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class XMLParser extends DefaultHandler {
+public class EntityLinking extends DefaultHandler {
 
 	int index = 0;
 	String preTag = null;
@@ -38,7 +38,7 @@ public class XMLParser extends DefaultHandler {
 //	int count_key = 0;
 //	int count_value = 0;
 	
-	XMLParser() {
+	EntityLinking() {
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class XMLParser extends DefaultHandler {
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		try {
 			SAXParser saxParser = spf.newSAXParser();
-			saxParser.parse(new File(filename), new XMLParser());
+			saxParser.parse(new File(filename), new EntityLinking());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
