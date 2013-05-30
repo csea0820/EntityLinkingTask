@@ -35,9 +35,9 @@ public class XMLParser extends DefaultHandler {
 
 	StringBuilder text_content = null;
 	
-	int count_key = 0;
-	int count_value = 0;
-
+//	int count_key = 0;
+//	int count_value = 0;
+	
 	XMLParser() {
 	}
 
@@ -64,8 +64,25 @@ public class XMLParser extends DefaultHandler {
 
 		if (preTag.equals("text"))
 			text_content = new StringBuilder(1000);
+		else if (qName.equals("redirect")) {
+			
+			Article art = getArticle(referencedArticle);
+			art.setRedirectName(attributes.getValue(0));
+		}
 	}
 
+	private Article getArticle(String articleName)
+	{
+		Article art = articles.get(articleName);
+		if (art == null) {
+			art = new Article(); 
+			articles.put(articleName, art);
+			//art.setNormalizedName(normalizedName(articleName));
+		}
+		
+		return art;
+	}
+	
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
@@ -74,7 +91,9 @@ public class XMLParser extends DefaultHandler {
 			parseText();
 			index++;
 			timeStamp();
+			referencedArticle = null;
 		}
+		
 		preTag = null;
 	}
 	
@@ -87,11 +106,7 @@ public class XMLParser extends DefaultHandler {
 			String titleName = referencedArticle.replace(
 					"(disambiguation)", "").trim();
 
-			Article titleArt = articles.get(referencedArticle);
-			if (titleArt == null){
-				titleArt = new Article();
-				articles.put(referencedArticle, titleArt);
-			}
+			Article titleArt = getArticle(referencedArticle);
 			
 			matcher = pattern_DP.matcher(content);
 			while (matcher.find()) {
@@ -101,11 +116,7 @@ public class XMLParser extends DefaultHandler {
 
 				String[] dp_contents = dp_content.split("\\|");
 
-				Article art = articles.get(dp_contents[0]);
-				if (art == null) {
-					art = new Article(); 
-					articles.put(dp_contents[0], art);
-				}
+				Article art = getArticle(dp_contents[0]);
 				if (!titleName.equals(dp_contents[0]))
 						art.addEAB(titleName);
 				titleArt.addDP(dp_contents[0]);
@@ -124,10 +135,6 @@ public class XMLParser extends DefaultHandler {
 
 		text_content.delete(0, text_content.length());
 		text_content = null;
-		if (count_value % 10000 == 0)
-		{
-			System.out.println("count_key="+count_key+",count_value="+count_value);
-		}
 	
 	}
 
@@ -143,9 +150,19 @@ public class XMLParser extends DefaultHandler {
 			}
 		}
 	}
-
-
-
+	
+	private String normalizedName(String name)
+	{
+		if (name.contains("(") && name.contains(")"))
+		{
+			return name.substring(0,name.indexOf("(")).toLowerCase().trim();
+		}
+		else
+		{
+			return name.toLowerCase().trim();
+		}
+	}
+	
 	private void timeStamp() {
 		if (index % 10000 == 0) {
 			System.out.println("Index:" + index);
@@ -165,14 +182,7 @@ public class XMLParser extends DefaultHandler {
 	}
 
 	private void addToSETM(String source, String target) {
-		Article art = articles.get(target);
-		if (art == null) {
-			count_key++;
-			art = new Article();
-			articles.put(target, art);
-		}
-
-		count_value++;
+		Article art = getArticle(target);
 		art.addSETM(source);
 	}
 

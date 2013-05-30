@@ -11,6 +11,25 @@ public class Article implements Comparable<Article>{
 	Set<String> eab = null;
 	Set<String> setm = null;
 	
+	String normalizedName = null;
+	String redirectName =  null;
+	
+	public String getNormalizedName() {
+		return normalizedName;
+	}
+
+	public void setNormalizedName(String normalizedName) {
+		this.normalizedName = normalizedName;
+	}
+
+	public String getRedirectName() {
+		return redirectName;
+	}
+
+	public void setRedirectName(String redirectName) {
+		this.redirectName = redirectName;
+	}
+
 	Article()
 	{
 		referencedArticle = new TreeSet<String>();
