@@ -37,6 +37,16 @@ class ArticleRedirectName{
 class Nomalized{	
 	private String nomalized;
 
+	Nomalized()
+	{
+		
+	}
+	
+	Nomalized(String nomalized)
+	{
+		this.nomalized = nomalized;
+	}
+	
 	public void setNomalized(String nomalized){
 		this.nomalized = nomalized;
 	}
@@ -170,37 +180,45 @@ public class FirstTable extends DefaultHandler {
 	 */
 	public static void main(String[] args) {
 		//String filename ="C:\\chenxiulongdata\\enwiki-latest-pages-articles.xml";
-		String filename = "C:\\Users\\sdcpku\\Desktop\\test3.xml";
-		SAXParserFactory spf = SAXParserFactory.newInstance();
-		FirstTable firsttable = new FirstTable();
-		try {
-			SAXParser saxParser = spf.newSAXParser();
-			saxParser.parse(new File(filename), firsttable);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		String filename = "C:\\Users\\sdcpku\\Desktop\\test3.xml";
+//		SAXParserFactory spf = SAXParserFactory.newInstance();
+//		FirstTable firsttable = new FirstTable();
+//		try {
+//			SAXParser saxParser = spf.newSAXParser();
+//			saxParser.parse(new File(filename), firsttable);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
-		/*
-		 * 遍历输出
-		 */
-		Map<Nomalized, Set<ArticleRedirectName>> narmap = firsttable.getMap();
-		Iterator iterator = narmap.entrySet().iterator();
-		while (iterator.hasNext()) {
-			System.out.println();
-			Map.Entry entry = (Map.Entry) iterator.next();
-			Nomalized nomalizedname = (Nomalized) entry.getKey();
-			System.out.println("nomalizedname  "+nomalizedname.getNomalized() );
-			Set redirectNomalized = (Set) entry.getValue();
-			Iterator setIterator = redirectNomalized.iterator();
-			
-			while(setIterator.hasNext()){
-				ArticleRedirectName artredic = (ArticleRedirectName)setIterator.next();
-				System.out.println("articlename:   "+artredic.getArticleName());
-				System.out.println("redirect:   "+artredic.getRedirect());
-			}
-/*			System.out.println("redirect "+redirectNomalized.getRedirect() );
-			System.out.println("nomalized "+redirectNomalized.getNomalized());*/
-		}
+//		/*
+//		 * 遍历输出
+//		 */
+//		Map<Nomalized, Set<ArticleRedirectName>> narmap = firsttable.getMap();
+//		Iterator iterator = narmap.entrySet().iterator();
+//		while (iterator.hasNext()) {
+//			System.out.println();
+//			Map.Entry entry = (Map.Entry) iterator.next();
+//			Nomalized nomalizedname = (Nomalized) entry.getKey();
+//			System.out.println("nomalizedname  "+nomalizedname.getNomalized() );
+//			Set redirectNomalized = (Set) entry.getValue();
+//			Iterator setIterator = redirectNomalized.iterator();
+//			
+//			while(setIterator.hasNext()){
+//				ArticleRedirectName artredic = (ArticleRedirectName)setIterator.next();
+//				System.out.println("articlename:   "+artredic.getArticleName());
+//				System.out.println("redirect:   "+artredic.getRedirect());
+//			}
+///*			System.out.println("redirect "+redirectNomalized.getRedirect() );
+//			System.out.println("nomalized "+redirectNomalized.getNomalized());*/
+//		}
+		
+		Map<Nomalized,String> map = new HashMap<Nomalized,String>();
+		
+		map.put(new Nomalized("AAA"), "BBBB");
+		
+		Nomalized n = new Nomalized("AAA");
+		if (map.containsKey(n))
+			System.out.println("CONTAIN");
 	}
 
 }

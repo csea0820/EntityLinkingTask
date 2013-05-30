@@ -1,6 +1,8 @@
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,12 +25,10 @@ public class EntityLinking extends DefaultHandler {
 
 	String referencedArticle = null;
 
-	String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
-	String regular_partial_SETM = "\\s+\\[\\[[^\\[+:]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
-
-	String regular_all_DP = "\\*+\\s+\\[\\[[^\\[+]+\\]\\]"; // 匹配以*开始，中间内容包含anchor的字符串。(用于消歧页)
-
-	String dpIndicator = "{{disambiguation}}";
+	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
+	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
+	private final String regular_all_DP = "\\*+\\s+\\[\\[[^\\[+]+\\]\\]"; // 匹配以*开始，中间内容包含anchor的字符串。(用于消歧页)
+	private final String dpIndicator = "{{disambiguation}}";
 
 	Pattern pattern_SETM = null;
 	Pattern pattern_DP = null;
@@ -52,6 +52,13 @@ public class EntityLinking extends DefaultHandler {
 	@Override
 	public void endDocument() throws SAXException {
 
+		
+		endMili = System.currentTimeMillis();
+		System.out.println("生成候选者耗时为：" + (endMili - startMili) + "毫秒");
+		super.endDocument();
+		
+		queryTask("linkresult");
+		
 		endMili = System.currentTimeMillis();
 		System.out.println("总耗时为：" + (endMili - startMili) + "毫秒");
 		super.endDocument();
@@ -63,14 +70,57 @@ public class EntityLinking extends DefaultHandler {
 		preTag = qName;
 
 		if (preTag.equals("text"))
-			text_content = new StringBuilder(1000);
+			text_content = new StringBuilder(3000);
 		else if (qName.equals("redirect")) {
 			
-			Article art = getArticle(referencedArticle);
-			art.setRedirectName(attributes.getValue(0));
+			Article art = getArticle(attributes.getValue(0));
+			art.addRedirectName(referencedArticle);
 		}
 	}
 
+	private Set<String> query(String query)
+	{
+		Set<String> candidates = new TreeSet<String>();
+		for (String art : articles.keySet())
+		{
+			Article article = articles.get(art);
+			article.setArticleName(art);
+			if (article.match(query))
+				candidates.add(art);
+		}
+		
+		return candidates;
+	}
+	
+	public void queryTask(String filePath)
+	{
+		ExpectedLinkResult elr = new ExpectedLinkResult();
+		elr.readLinkResult(filePath);
+		
+		EvaluationMetric em = new EvaluationMetric();
+		
+		int querySize = elr.getQueries().size();
+		em.allRelevantPagesPlus(querySize);
+		for (int i = 0; i < querySize; i++)
+		{
+			if (elr.getExpectedResult().get(i).equals("NIL"))
+			{
+				em.returnedRelevantPagesPlus();
+				continue;
+			}
+				
+			
+			Set<String> candidates = query(elr.getQueries().get(i));
+			em.allReturnedPagesPlus(candidates.size());
+			if (candidates.contains(elr.getExpectedResult().get(i)))
+				em.returnedRelevantPagesPlus();
+			
+			candidates = null;
+		}
+		
+		System.out.println("Recall="+em.recall()+",Precision="+em.precision());
+	}
+	
 	private Article getArticle(String articleName)
 	{
 		Article art = articles.get(articleName);
@@ -103,10 +153,15 @@ public class EntityLinking extends DefaultHandler {
 		String content = text_content.toString().trim();
 		if (content.endsWith(dpIndicator)) {
 
-			String titleName = referencedArticle.replace(
-					"(disambiguation)", "").trim();
+			String titleName = null;
+			int dpFlagIndex = referencedArticle.indexOf("(");
+			if (dpFlagIndex != -1)
+				titleName = referencedArticle.substring(0, dpFlagIndex).trim();
+			else titleName = referencedArticle;
+//			String titleName = referencedArticle.replace(
+//					"(disambiguation)", "").trim();
 
-			Article titleArt = getArticle(referencedArticle);
+//			Article titleArt = getArticle(referencedArticle);
 			
 			matcher = pattern_DP.matcher(content);
 			while (matcher.find()) {
@@ -117,12 +172,15 @@ public class EntityLinking extends DefaultHandler {
 				String[] dp_contents = dp_content.split("\\|");
 
 				Article art = getArticle(dp_contents[0]);
-				if (!titleName.equals(dp_contents[0]))
-						art.addEAB(titleName);
-				titleArt.addDP(dp_contents[0]);
+//				if (!titleName.equals(dp_contents[0]))
+				art.addEAB(titleName);
+//				titleArt.addDP(dp_contents[0]);
 				
 //				if (dp_contents.length == 2)
 //					addToSETM(dp_contents[1], dp_contents[0]);
+				
+//				dp_content = null;
+//				dp_contents = null;
 			}
 		} else
 		{
@@ -151,17 +209,6 @@ public class EntityLinking extends DefaultHandler {
 		}
 	}
 	
-	private String normalizedName(String name)
-	{
-		if (name.contains("(") && name.contains(")"))
-		{
-			return name.substring(0,name.indexOf("(")).toLowerCase().trim();
-		}
-		else
-		{
-			return name.toLowerCase().trim();
-		}
-	}
 	
 	private void timeStamp() {
 		if (index % 10000 == 0) {
