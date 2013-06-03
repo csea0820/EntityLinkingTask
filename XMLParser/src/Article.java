@@ -3,7 +3,7 @@ import java.util.TreeSet;
 
 public class Article implements Comparable<Article> {
 	String articleName;
-	int id;
+//	int id;
 	Set<String> referencedArticle = null;
 
 	Set<String> dps = null;
@@ -19,21 +19,22 @@ public class Article implements Comparable<Article> {
 		dps = new TreeSet<String>();
 		setm = new TreeSet<String>();
 		eab = new TreeSet<String>();
-		redirectNames = new TreeSet<String>();
+//		redirectNames = new TreeSet<String>();
 	}
 
 	Article(String articleName) {
 		this();
 		this.articleName = articleName;
+		//getArticleName();
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public int getId() {
-		return id;
-	}
+//	public void setId(int id) {
+//		this.id = id;
+//	}
+//
+//	public int getId() {
+//		return id;
+//	}
 
 	public String getArticleName() {
 		return articleName;
@@ -109,8 +110,8 @@ public class Article implements Comparable<Article> {
 	public boolean match(String query)
 	{
 		
-		if (articleName.equals(query) || getNormalizedName().equals(query))return true;
-		if (articleName.contains(query) || getNormalizedName().contains(query))return true;
+		if (articleName.equals(query))return true;
+		if (articleName.contains(query))return true;
 		if (setm.contains(query))return true;
 		if (eab.contains(query))return true;
 		if (dps.contains(query))return true;

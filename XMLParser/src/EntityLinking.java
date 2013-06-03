@@ -70,7 +70,7 @@ public class EntityLinking extends DefaultHandler {
 		preTag = qName;
 
 		if (preTag.equals("text"))
-			text_content = new StringBuilder(3000);
+			text_content = new StringBuilder(1000);
 		else if (qName.equals("redirect")) {
 			
 			Article art = getArticle(attributes.getValue(0));
@@ -84,10 +84,11 @@ public class EntityLinking extends DefaultHandler {
 		for (String art : articles.keySet())
 		{
 			Article article = articles.get(art);
-			article.setArticleName(art);
+			//article.setArticleName(art);
 			if (article.match(query))
 				candidates.add(art);
 		}
+		
 		
 		return candidates;
 	}
@@ -101,8 +102,11 @@ public class EntityLinking extends DefaultHandler {
 		
 		int querySize = elr.getQueries().size();
 		em.allRelevantPagesPlus(querySize);
+		Set<String> candidates = null;
 		for (int i = 0; i < querySize; i++)
 		{
+			System.out.println("Query " + (i+1) + " Done!");
+
 			if (elr.getExpectedResult().get(i).equals("NIL"))
 			{
 				em.returnedRelevantPagesPlus();
@@ -110,7 +114,7 @@ public class EntityLinking extends DefaultHandler {
 			}
 				
 			
-			Set<String> candidates = query(elr.getQueries().get(i));
+			candidates = query(elr.getQueries().get(i));
 			em.allReturnedPagesPlus(candidates.size());
 			if (candidates.contains(elr.getExpectedResult().get(i)))
 				em.returnedRelevantPagesPlus();
@@ -151,6 +155,8 @@ public class EntityLinking extends DefaultHandler {
 	{
 		Matcher matcher = null;
 		String content = text_content.toString().trim();
+		text_content.delete(0, text_content.length());
+		text_content = null;
 		if (content.endsWith(dpIndicator)) {
 
 			String titleName = null;
@@ -164,21 +170,24 @@ public class EntityLinking extends DefaultHandler {
 //			Article titleArt = getArticle(referencedArticle);
 			
 			matcher = pattern_DP.matcher(content);
+			String dp_content = null;
+			String dp_content_tmp = null;
+			String[] dp_contents = null;
+			Article art = null;
 			while (matcher.find()) {
-				String dp_content = matcher.group().trim();
-				dp_content = dp_content
-						.substring(dp_content.indexOf("[[") + 2,dp_content.indexOf("]]"));
+				dp_content_tmp = matcher.group().trim();
+				dp_content = dp_content_tmp
+						.substring(dp_content_tmp.indexOf("[[") + 2,dp_content_tmp.indexOf("]]"));
+				dp_contents = dp_content.split("\\|");
 
-				String[] dp_contents = dp_content.split("\\|");
-
-				Article art = getArticle(dp_contents[0]);
+				art = getArticle(new String(dp_contents[0].toCharArray()));
 //				if (!titleName.equals(dp_contents[0]))
 				art.addEAB(titleName);
 //				titleArt.addDP(dp_contents[0]);
 				
 //				if (dp_contents.length == 2)
 //					addToSETM(dp_contents[1], dp_contents[0]);
-				
+//				dp_content_tmp = null;
 //				dp_content = null;
 //				dp_contents = null;
 			}
@@ -191,8 +200,8 @@ public class EntityLinking extends DefaultHandler {
 			}
 		}
 
-		text_content.delete(0, text_content.length());
-		text_content = null;
+		
+		matcher = null;
 	
 	}
 
@@ -212,9 +221,8 @@ public class EntityLinking extends DefaultHandler {
 	
 	private void timeStamp() {
 		if (index % 10000 == 0) {
-			System.out.println("Index:" + index);
 			endMili = System.currentTimeMillis();
-			System.out.println("×ÜºÄÊ±Îª£º" + (endMili - startMili) / 1000 + "Ãë");
+			System.out.println(index+","+(endMili - startMili) / 1000);
 			System.gc();
 		}
 	}
@@ -225,7 +233,7 @@ public class EntityLinking extends DefaultHandler {
 
 		if (anchor_contents.length < 2)
 			return;
-		addToSETM(anchor_contents[1], anchor_contents[0]);
+		addToSETM(new String(anchor_contents[1].toCharArray()), new String(anchor_contents[0].toCharArray()));
 	}
 
 	private void addToSETM(String source, String target) {
