@@ -26,12 +26,14 @@ public class EntityLinking extends DefaultHandler {
 	String referencedArticle = null;
 
 	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
-	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
+	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
 	private final String regular_all_DP = "\\*+\\s+\\[\\[[^\\[+]+\\]\\]"; // 匹配以*开始，中间内容包含anchor的字符串。(用于消歧页)
-	private final String dpIndicator = "{{disambiguation}}";
+	private final String dpIndicator = "\\{\\{disambiguation\\|{0,1}.*\\}\\}";
 
+	
 	Pattern pattern_SETM = null;
 	Pattern pattern_DP = null;
+	Pattern pattern_DP_PAGE = null;
 
 	StringBuilder text_content = null;
 	
@@ -47,6 +49,8 @@ public class EntityLinking extends DefaultHandler {
 
 		pattern_SETM = Pattern.compile(regular_partial_SETM);
 		pattern_DP = Pattern.compile(regular_all_DP);
+		pattern_DP_PAGE = Pattern.compile(dpIndicator);
+		
 	}
 
 	@Override
@@ -71,11 +75,11 @@ public class EntityLinking extends DefaultHandler {
 
 		if (preTag.equals("text"))
 			text_content = new StringBuilder(1000);
-		else if (qName.equals("redirect")) {
-			
-			Article art = getArticle(attributes.getValue(0));
-			art.addRedirectName(referencedArticle);
-		}
+//		else if (qName.equals("redirect")) {
+//			
+////			Article art = getArticle(attributes.getValue(0));
+////			art.addRedirectName(referencedArticle);
+//		}
 	}
 
 	private Set<String> query(String query)
@@ -105,12 +109,11 @@ public class EntityLinking extends DefaultHandler {
 		Set<String> candidates = null;
 		for (int i = 0; i < querySize; i++)
 		{
-			System.out.println("Query " + (i+1) + " Done!");
 
 			if (elr.getExpectedResult().get(i).equals("NIL"))
 			{
 				em.returnedRelevantPagesPlus();
-				continue;
+//				continue;
 			}
 				
 			
@@ -118,6 +121,12 @@ public class EntityLinking extends DefaultHandler {
 			em.allReturnedPagesPlus(candidates.size());
 			if (candidates.contains(elr.getExpectedResult().get(i)))
 				em.returnedRelevantPagesPlus();
+			
+			StringBuilder sb = new StringBuilder();
+			for (String can: candidates)
+				sb.append(can).append("\n");
+			
+			Utility.writeToFile("D:\\TAC_RESULT\\DP\\DP_"+elr.getQueries().get(i)+"_"+elr.getExpectedResult().get(i)+"_"+i+".txt", sb.toString());
 			
 			candidates = null;
 		}
@@ -157,7 +166,8 @@ public class EntityLinking extends DefaultHandler {
 		String content = text_content.toString().trim();
 		text_content.delete(0, text_content.length());
 		text_content = null;
-		if (content.endsWith(dpIndicator)) {
+		matcher = pattern_DP_PAGE.matcher(content);
+		if (matcher.find()){
 
 			String titleName = null;
 			int dpFlagIndex = referencedArticle.indexOf("(");
@@ -180,29 +190,27 @@ public class EntityLinking extends DefaultHandler {
 						.substring(dp_content_tmp.indexOf("[[") + 2,dp_content_tmp.indexOf("]]"));
 				dp_contents = dp_content.split("\\|");
 
-				art = getArticle(new String(dp_contents[0].toCharArray()));
+				art = getArticle(dp_contents[0]);
 //				if (!titleName.equals(dp_contents[0]))
 				art.addEAB(titleName);
 //				titleArt.addDP(dp_contents[0]);
 				
 //				if (dp_contents.length == 2)
 //					addToSETM(dp_contents[1], dp_contents[0]);
-//				dp_content_tmp = null;
-//				dp_content = null;
-//				dp_contents = null;
+				dp_content_tmp = null;
+				dp_content = null;
+				dp_contents = null;
 			}
-		} else
-		{
-			matcher = pattern_SETM.matcher(content);
-
-			while (matcher.find()) {
-				resolveHyperLinks(matcher.group().trim());
-			}
-		}
-
-		
-		matcher = null;
-	
+		} 
+//		else
+//		{
+//			matcher = pattern_SETM.matcher(content);
+//
+//			while (matcher.find()) {
+//				resolveHyperLinks(matcher.group().trim());
+//			}
+//		}	
+//		matcher = null;
 	}
 
 	@Override
@@ -233,7 +241,7 @@ public class EntityLinking extends DefaultHandler {
 
 		if (anchor_contents.length < 2)
 			return;
-		addToSETM(new String(anchor_contents[1].toCharArray()), new String(anchor_contents[0].toCharArray()));
+		addToSETM(anchor_contents[1],anchor_contents[0]);
 	}
 
 	private void addToSETM(String source, String target) {
@@ -256,14 +264,14 @@ public class EntityLinking extends DefaultHandler {
 			e.printStackTrace();
 		}
 
-		// Pattern pattern = Pattern.compile("\\*+\\s+\\[\\[[^\\[+]+\\]\\]");
-		// Matcher matcher =
-		// pattern.matcher("* [[Apache Group (disambiguation)]]\n* [[Fort Apache (disambiguation)]]");
-		// while (matcher.find())
-		// {
-		// System.out.println(matcher.group());
-		// }
-		//
+//		 Pattern pattern = Pattern.compile("\\{\\{disambiguation\\|{0,1}.*\\}\\}");
+//		 Matcher matcher =
+//		 pattern.matcher(" {{disambiguation|school}} ");
+//		 while (matcher.find())
+//		 {
+//		 System.out.println(matcher.group());
+//		 }
+//		
 		//		
 //		 String str = "Apache (novel)";
 //		 for (String s : str.split("\\|"))

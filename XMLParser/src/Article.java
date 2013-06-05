@@ -15,10 +15,10 @@ public class Article implements Comparable<Article> {
 	String normalizedName = null;
 
 	Article() {
-		referencedArticle = new TreeSet<String>();
-		dps = new TreeSet<String>();
+//		referencedArticle = new TreeSet<String>();
+//		dps = new TreeSet<String>();
 		setm = new TreeSet<String>();
-		eab = new TreeSet<String>();
+//		eab = new TreeSet<String>();
 //		redirectNames = new TreeSet<String>();
 	}
 
@@ -110,11 +110,11 @@ public class Article implements Comparable<Article> {
 	public boolean match(String query)
 	{
 		
-		if (articleName.equals(query))return true;
-		if (articleName.contains(query))return true;
+//		if (articleName.equals(query))return true;
+//		if (articleName.contains(query))return true;
 		if (setm.contains(query))return true;
-		if (eab.contains(query))return true;
-		if (dps.contains(query))return true;
+//		if (eab.contains(query))return true;
+//		if (dps.contains(query))return true;
 		
 		
 		return false;
