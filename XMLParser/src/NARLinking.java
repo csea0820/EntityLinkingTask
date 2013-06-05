@@ -16,55 +16,33 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
-public class FirstTable extends DefaultHandler {
+public class NARLinking extends AbstractLinking {
 
-	int index = 0;
-	String preTag = null;
+	
 
-	long startMili;
-	long endMili;
-
-/*	private ArticlePage articlePage;
-	private List<ArticlePage> articlePages;*/
 	
 	private String titleName;
 	private String normalizedTitleName = null;
 	private String redirectName = null;
 	private Map<String,Set<String>> NAR;
 
-	FirstTable() {
+	boolean ignoreTitle = false;
+	
+	NARLinking(String outputPath) {
+		super(outputPath);
 	}
-
-	/*public List<ArticlePage> getList() {
-		return articlePages;
-	}*/
 	
 	@Override
 	public void startDocument() throws SAXException {
 		startMili = System.currentTimeMillis();// 当前时间对应的毫秒数
-		//articlePages = new ArrayList<ArticlePage>();
 		NAR = new TreeMap<String,Set<String>>();
 		
 	}
 
 	@Override
-	public void endDocument() throws SAXException {
-
-		endMili = System.currentTimeMillis();
-		System.out.println("生成候选者耗时为：" + (endMili - startMili) + "毫秒");
-		super.endDocument();
-		
-		queryTask("linkresult");
-		
-		endMili = System.currentTimeMillis();
-		System.out.println("总耗时为：" + (endMili - startMili) + "毫秒");
-		super.endDocument();
-	}
-
-	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		if (qName.equals("redirect")) {
+		if (qName.equals("redirect") && ignoreTitle == false) {
 			redirectName = attributes.getValue(0);
 			
 			Set<String> set = NAR.get(normalizedTitleName);
@@ -77,6 +55,7 @@ public class FirstTable extends DefaultHandler {
 		}
 		else if (qName.equals("text"))
 		{
+			ignoreTitle = true;
 			redirectName = null;
 		}
 		preTag = qName;
@@ -86,7 +65,7 @@ public class FirstTable extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		if (qName.equals("text"))
+		if (qName.equals("text") && ignoreTitle == false)
 		{
 			if (redirectName == null)
 			{
@@ -112,6 +91,7 @@ public class FirstTable extends DefaultHandler {
 				String content = new String(ch, start, length);
 
 				titleName = content;
+				ignoreTitle = ignoreTitle(titleName);
 				/*
 				 * normalizedName 通过调研发现title的（）目前只出现在句尾。所以去（）标签同时转化为小写
 				 */
@@ -132,57 +112,49 @@ public class FirstTable extends DefaultHandler {
 	}
 
 	
-	private Set<String> query(String query)
+	
+	private String getShortName(String name)
 	{
+		String result = "";
+		for (String s : name.split("\\s"))
+		{
+			if (!"of".equals(s) && s.length() > 0)
+				result += s.charAt(0);
+		}
+		return result;
+	}
+	
+	private boolean ignoreTitle(String str)
+	{
+		if (str.contains("[") || str.contains("]") || str.contains("{") || str.contains("}") 
+				|| str.contains("=") || str.contains(":") || str.contains("'") || str.contains("\"")
+				|| str.trim().equals(""))
+			return true;
+		return false;
+
+	}
+	
+	@Override
+	protected Set<String> senseGenerator(String query) {
 		Set<String> candidates = new TreeSet<String>();
 		String q = query.toLowerCase();
 		for (String nor : NAR.keySet())
 		{
-			if (nor.equals(q) || nor.contains(q))
+			if (nor.equals(q) || nor.contains(q) || q.contains(nor))
 			{
 				for (String ar: NAR.get(nor))
 					candidates.add(ar);
 			}
-		}
+			else if (!nor.trim().equals(""))
+			{
+				String sn = getShortName(nor);
+				if (sn.equals(q) || sn.contains(q) || q.contains(sn))
+					candidates.addAll(NAR.get(nor));
+			}
+		}	
 		return candidates;
 	}
 	
-	public void queryTask(String filePath)
-	{
-		ExpectedLinkResult elr = new ExpectedLinkResult();
-		elr.readLinkResult(filePath);
-		
-		EvaluationMetric em = new EvaluationMetric();
-		
-		int querySize = elr.getQueries().size();
-		em.allRelevantPagesPlus(querySize);
-		Set<String> candidates = null;
-		for (int i = 0; i < querySize; i++)
-		{
-
-			if (elr.getExpectedResult().get(i).equals("NIL"))
-			{
-				em.returnedRelevantPagesPlus();
-//				continue;
-			}
-				
-			
-			candidates = query(elr.getQueries().get(i));
-			em.allReturnedPagesPlus(candidates.size());
-			if (candidates.contains(elr.getExpectedResult().get(i)))
-				em.returnedRelevantPagesPlus();
-			
-			StringBuilder sb = new StringBuilder();
-			for (String can: candidates)
-				sb.append(can).append("\n");
-			
-			Utility.writeToFile("D:\\TAC_RESULT\\NAR\\NAR_"+elr.getQueries().get(i)+"_"+elr.getExpectedResult().get(i)+"_"+i+".txt", sb.toString());
-			
-			candidates = null;
-		}
-		
-		System.out.println("Recall="+em.recall()+",Precision="+em.precision());
-	}
 
 	/**
 	 * @param args
@@ -191,7 +163,7 @@ public class FirstTable extends DefaultHandler {
 		//String filename ="C:\\chenxiulongdata\\enwiki-latest-pages-articles.xml";
 		String filename = "D:\\KBP数据集\\enwiki-latest-pages-articles.xml";
 		SAXParserFactory spf = SAXParserFactory.newInstance();
-		FirstTable firsttable = new FirstTable();
+		NARLinking firsttable = new NARLinking("D:\\TAC_RESULT\\NAR");
 		try {
 			SAXParser saxParser = spf.newSAXParser();
 			saxParser.parse(new File(filename), firsttable);
@@ -204,5 +176,7 @@ public class FirstTable extends DefaultHandler {
 		 */
 		
 	}
+
+	
 
 }

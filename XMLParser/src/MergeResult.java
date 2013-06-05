@@ -79,14 +79,16 @@ public class MergeResult {
 		em.allReturnedPagesPlus(s1.size());
 		String[] expectedResult =  file.getName().split("_");
 		if (s1.contains(expectedResult[2]) || "NIL".equals(expectedResult[2]))
-			{em.returnedRelevantPagesPlus();match = 1;}
-		
-
+		{
+			em.returnedRelevantPagesPlus();match = 1;
+			
+		}
+			
 		StringBuilder sb = new StringBuilder();
 		for (String can: s1)
 			sb.append(can).append("\n");
 		
-		Utility.writeToFile("D:\\TAC_RESULT\\TOTAL\\"+expectedResult[1]+"_"+expectedResult[2]+"_"+expectedResult[3].replace(".txt", "")+"_"+match+".txt", sb.toString());
+		Utility.writeToFile("D:\\TAC_RESULT\\TOTAL\\"+match+"_"+expectedResult[1]+"_"+expectedResult[2]+"_"+expectedResult[3].replace(".txt", "")+".txt", sb.toString());
 		
 	}
 	

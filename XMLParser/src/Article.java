@@ -68,7 +68,7 @@ public class Article implements Comparable<Article> {
 
 	public void addEAB(String shortName) {
 		//eab.add(shortName);
-		setm.add(shortName);
+		setm.add(shortName.toLowerCase());
 	}
 
 	public Set<String> getSetm() {
