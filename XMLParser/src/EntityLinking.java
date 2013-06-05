@@ -27,7 +27,7 @@ public class EntityLinking extends DefaultHandler {
 
 	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
 	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
-	private final String regular_all_DP = "\\*+\\s+\\[\\[[^\\[+]+\\]\\]"; // 匹配以*开始，中间内容包含anchor的字符串。(用于消歧页)
+	private final String regular_all_DP = "\\*+\\s*\\[\\[[^\\[+]+\\]\\]"; // 匹配以*开始，中间内容包含anchor的字符串。(用于消歧页)
 	private final String dpIndicator = "\\{\\{disambiguation\\|{0,1}.*\\}\\}";
 
 	
@@ -266,7 +266,7 @@ public class EntityLinking extends DefaultHandler {
 
 //		 Pattern pattern = Pattern.compile("\\{\\{disambiguation\\|{0,1}.*\\}\\}");
 //		 Matcher matcher =
-//		 pattern.matcher(" {{disambiguation|school}} ");
+//		 pattern.matcher("{{disambiguation}}");
 //		 while (matcher.find())
 //		 {
 //		 System.out.println(matcher.group());
