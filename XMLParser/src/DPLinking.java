@@ -58,7 +58,6 @@ public class DPLinking extends AbstractLinking {
 
 		if ("text".equals(preTag)) {
 			parseText();
-			index++;
 			timeStamp();
 			referencedArticle = null;
 		}
@@ -149,6 +148,12 @@ public class DPLinking extends AbstractLinking {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	@Override
+	protected void setOutputPrefixName() {
+		this.outputPrefixName = "DP";
 	}
 
 	

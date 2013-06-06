@@ -75,7 +75,9 @@ public class ExpectedLinkResult {
 		int i = 0;
 		for (i = 0; i < elr.getQueries().size(); i++)
 		{
+			if (elr.getQueries().get(i).equals("Czech National Bank"))
 			System.out.println(elr.getQueries().get(i)+","+elr.getExpectedResult().get(i));
+			
 		}
 	}
 

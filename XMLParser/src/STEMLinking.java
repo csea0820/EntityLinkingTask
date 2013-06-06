@@ -58,7 +58,6 @@ public class STEMLinking extends AbstractLinking {
 
 		if ("text".equals(preTag)) {
 			parseText();
-			index++;
 			timeStamp();
 		}
 
@@ -184,6 +183,11 @@ public class STEMLinking extends AbstractLinking {
 		// while
 		// (m.find())
 		// System.out.println(m.group());
+	}
+
+	@Override
+	protected void setOutputPrefixName() {
+		this.outputPrefixName = "STEM";
 	}
 
 }
