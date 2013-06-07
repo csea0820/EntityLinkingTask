@@ -104,7 +104,7 @@ public class NARLinking extends AbstractLinking {
 			if (!"of".equals(s) && s.length() > 0)
 				result += s.charAt(0);
 		}
-		return result;
+		return result.toLowerCase();
 	}
 
 	private static boolean ignoreTitle(String str) {
@@ -139,11 +139,11 @@ public class NARLinking extends AbstractLinking {
 						for (String ar : NAR.get(nor))
 							candidates.add(ar);
 					}
-					// else {
-					// String sn = getShortName(nor);
-					// if (sn.equals(query) || query.contains(sn))
-					// candidates.addAll(NAR.get(nor));
-					// }
+					 else {
+					 String sn = getShortName(nor);
+					 if (sn.equals(query) || isSubString(query, sn) || isSubString(sn, query))
+						 candidates.addAll(NAR.get(nor));
+					 }
 				}
 			}
 		return candidates;
