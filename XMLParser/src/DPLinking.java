@@ -75,7 +75,7 @@ public class DPLinking extends AbstractLinking {
 		if (matcher.find()){
 
 			String titleName = null;
-			int dpFlagIndex = referencedArticle.indexOf("(");
+			int dpFlagIndex = referencedArticle.indexOf("(");  //referencedArticleÎªpage name(ÈçJC£©
 			if (dpFlagIndex != -1)
 				titleName = referencedArticle.substring(0, dpFlagIndex).trim();
 			else titleName = referencedArticle;

@@ -15,7 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class STEMLinking extends AbstractLinking {
 
-	Map<String, Article> articles = new TreeMap<String, Article>();
+	Map<String, Article> articles = new TreeMap<String, Article>();  //<SBS,set<Silver Bauhinia Star，...>>
 //	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
 	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
 	Pattern pattern_STEM = null;

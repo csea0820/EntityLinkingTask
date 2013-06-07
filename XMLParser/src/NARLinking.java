@@ -9,7 +9,9 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-
+/*
+ * table 1,TreeMap<normalizedTitleName, TreeSet<redirectName>>()
+ */
 public class NARLinking extends AbstractLinking {
 
 	private String titleName;
@@ -42,7 +44,7 @@ public class NARLinking extends AbstractLinking {
 				NAR.put(normalizedTitleName, set);
 			}
 			set.add(redirectName);
-		} else if (qName.equals("text")) {
+		} else if (qName.equals("text")) { 
 //			ignoreTitle = true;
 			redirectName = null;
 		}
