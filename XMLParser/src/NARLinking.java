@@ -118,7 +118,7 @@ public class NARLinking extends AbstractLinking {
 	}
 
 	// 字符串subString是否是mainString的子串
-	public static boolean isSubString(String mainString, String subString) {
+	private  boolean isSubString(String mainString, String subString) {
 		int index = mainString.indexOf(subString);
 		if (index == -1 || (index != 0 && mainString.charAt(index - 1) != ' '))
 			return false;
@@ -135,7 +135,7 @@ public class NARLinking extends AbstractLinking {
 			for (String nor : NAR.keySet()) {
 				if (!nor.equals("")) {
 					if (nor.equals(query) || isSubString(nor, query)
-							|| isSubString(query, nor)) {
+							|| isSubString(query, nor) || (nor.length() == query.length() && Utility.getEditDistance(nor, query)*1.0/query.length() <= 0.2)) {
 						for (String ar : NAR.get(nor))
 							candidates.add(ar);
 					}
