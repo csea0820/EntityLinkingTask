@@ -22,15 +22,17 @@ public class MergeResult {
 
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
-			em.setM_all_relevant_pages(files.length);
+			em.setM_all_relevant_pages(files.length); //all_relevant_pages=query总条数3904
 			for (File file : files) {
 				String name = file.getName();
 				System.out.println("Merge file " + name);
+				//合并时是将相同的query的stem、nar、dp的结果进行合并，因此只需文件名部分NAR用stem或dp来地替代就是stem、dp中相同query的结果
 				merge(file,new File(resultDir+"\\STEM\\"+name.replace("NAR_", "STEM_"))
 				,new File(resultDir+"\\DP\\"+name.replace("NAR_", "DP_")));
 			}
 		} 
-		System.out.println("Recall="+em.recall()+",Precision="+em.precision());
+		System.out.println("all_relevant_pages="+em.m_all_relevant_pages+","+"all_returned_pages="+em.m_all_returned_pages+","+"m_returned_relevant_pages="+em.m_returned_relevant_pages
+		+"\nRecall="+em.recall()+",Precision="+em.precision());
 	}
 	
 	Set<String> readResult(File file)
@@ -39,7 +41,7 @@ public class MergeResult {
 		BufferedReader br = null;
 		FileReader fr = null;
 		String str;
-		
+		//合并前将结果再做一次过滤，将有{，{，=，：之类的行都去掉
 		try {
 			fr = new FileReader(file);
 			br = new BufferedReader(fr);
@@ -78,6 +80,7 @@ public class MergeResult {
 		
 		em.allReturnedPagesPlus(s1.size());
 		String[] expectedResult =  file.getName().split("_");
+		//如果结果中包含query name的或者结果为nil的都算是正确或匹配，则returnedRelevantPages+1
 		if (s1.contains(expectedResult[2]) || "NIL".equals(expectedResult[2]))
 		{
 			em.returnedRelevantPagesPlus();match = 1;

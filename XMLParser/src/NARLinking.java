@@ -137,20 +137,20 @@ public class NARLinking extends AbstractLinking {
 			for (String nor : NAR.keySet()) {
 				if (!nor.equals("")) {
 					if (nor.equals(query) || isSubString(nor, query)
-							|| isSubString(query, nor) || (nor.length() == query.length() && Utility.getEditDistance(nor, query)*1.0/query.length() <= 0.2)) {
-						for (String ar : NAR.get(nor))
+							|| isSubString(query, nor)||(nor.length() == query.length()&&Utility.getEditDistance(nor, query)*1.0/query.length() <= 0.2)) {
+							for (String ar : NAR.get(nor))
 							candidates.add(ar);
 					}
 					 else {
 					 String sn = getShortName(nor);
-					 if (sn.equals(query) || isSubString(query, sn) || isSubString(sn, query))
+					 if (sn.equals(query))
 						 candidates.addAll(NAR.get(nor));
 					 }
 				}
 			}
 		return candidates;
 	}
-
+	
 	public void info() {
 		for (String key : NAR.keySet()) {
 			System.out.println("Key=" + key + "," + NAR.get(key));
