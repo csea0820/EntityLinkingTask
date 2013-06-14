@@ -35,7 +35,7 @@ public class NARLinking extends AbstractLinking {
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		if (qName.equals("redirect")) {
+		if (qName.equals("redirect") && ignoreTitle(normalizedTitleName) == false) {
 			redirectName = attributes.getValue(0);
 
 			Set<String> set = NAR.get(normalizedTitleName);
@@ -55,7 +55,7 @@ public class NARLinking extends AbstractLinking {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		if (qName.equals("text")) {
+		if (qName.equals("text") && ignoreTitle(normalizedTitleName) == false) {
 			if (redirectName == null) {
 				Set<String> set = NAR.get(normalizedTitleName);
 				if (set == null) {
@@ -110,11 +110,8 @@ public class NARLinking extends AbstractLinking {
 	}
 
 	private static boolean ignoreTitle(String str) {
-		// if (str.contains("[") || str.contains("]") || str.contains("{")
-		// || str.contains("}") || str.contains("=") || str.contains(":")
-		// || str.contains("'") || str.contains("\"")
-		// || str.trim().equals(""))
-		// return true;
+		 if (str.contains(":"))
+			 return true;
 		return false;
 
 	}
