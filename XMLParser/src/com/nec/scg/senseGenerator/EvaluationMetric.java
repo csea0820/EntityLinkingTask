@@ -1,3 +1,4 @@
+package com.nec.scg.senseGenerator;
 /**
  * @Author Xiaofeng
  * @Date 2013-5-30 ионГ10:46:05

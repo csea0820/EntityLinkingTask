@@ -1,3 +1,5 @@
+package com.nec.scg.senseGenerator;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +10,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.nec.scg.utility.Utility;
 
 /**
  * @Author Xiaofeng

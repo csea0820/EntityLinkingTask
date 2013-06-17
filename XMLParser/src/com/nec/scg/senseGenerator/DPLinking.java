@@ -1,3 +1,4 @@
+package com.nec.scg.senseGenerator;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
