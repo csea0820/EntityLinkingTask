@@ -138,11 +138,11 @@ public class NARLinking extends AbstractLinking {
 							for (String ar : NAR.get(nor))
 							candidates.add(ar);
 					}
-					 else {
-					 String sn = getShortName(nor);
-					 if (sn.equals(query))
-						 candidates.addAll(NAR.get(nor));
-					 }
+//					 else {
+//					 String sn = getShortName(nor);
+//					 if (sn.equals(query))
+//						 candidates.addAll(NAR.get(nor));
+//					 }
 				}
 			}
 		return candidates;
