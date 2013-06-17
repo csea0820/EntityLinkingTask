@@ -1,3 +1,4 @@
+package com.nec.scg.senseGenerator;
 import java.util.Set;
 import java.util.TreeSet;
 

@@ -1,3 +1,5 @@
+package com.nec.scg.senseGenerator;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +11,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import com.nec.scg.utility.Utility;
 /*
  * table 1,TreeMap<normalizedTitleName, TreeSet<redirectName>>()
  */
