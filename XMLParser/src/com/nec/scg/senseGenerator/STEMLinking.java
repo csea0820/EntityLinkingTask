@@ -98,7 +98,7 @@ public class STEMLinking extends AbstractLinking {
 		addToSETM(anchor_contents[1], anchor_contents[0]);
 	}
 
-	private void addToSETM(String source, String target) {
+	protected void addToSETM(String source, String target) {
 		Article art = getArticle(target);
 		art.addSETM(source);
 	}
