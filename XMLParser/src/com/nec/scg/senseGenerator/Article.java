@@ -5,6 +5,7 @@ import java.util.TreeSet;
 public class Article implements Comparable<Article> {
 	String articleName;
 //	int id;
+	int countAllLink;  //用来统计连接数的
 	Set<String> referencedArticle = null;
 
 	Set<String> dps = null;
