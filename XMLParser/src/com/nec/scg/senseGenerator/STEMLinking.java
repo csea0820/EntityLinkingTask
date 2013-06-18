@@ -14,6 +14,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.nec.scg.utility.Utility;
+
 public class STEMLinking extends AbstractLinking {
 
 	Map<String, Article> articles = new TreeMap<String, Article>();  //<SBS,set<Silver Bauhinia Star，...>>
@@ -102,6 +104,7 @@ public class STEMLinking extends AbstractLinking {
 	private void addToSETM(String source, String target) {
 		Article art = getArticle(target);
 		art.addSETM(source);
+		art.countAllLink++;
 	}
 
 	@Override
@@ -116,7 +119,17 @@ public class STEMLinking extends AbstractLinking {
 		}
 		return candidates;
 	}
+	
+	//输出每篇article name和连接数linkcount
+	void OutPutLinkCount(){
+		StringBuilder sb = new StringBuilder();
+		for (String art : articles.keySet()) {
+			Article article = articles.get(art);
+			sb.append(article.articleName+"\t"+article.countAllLink).append("\n");
+		}
+		Utility.writeToFile("D:\\TAC_RESULT\\linkCount\\"+"linkCount"+".txt", sb.toString());
 
+	}
 	/**
 	 * @param args
 	 */
@@ -130,7 +143,7 @@ public class STEMLinking extends AbstractLinking {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		new STEMLinking("D:\\TAC_RESULT\\STEM").OutPutLinkCount(); //为避免影响生成stem候选速度，在程序执行最后把linkcout输出，如果可以在其他位置执行不用new那可以修改掉
 		// Pattern pattern =
 		// Pattern.compile("\\{\\{[Dd]isambig(uation){0,1}\\|{0,1}.*\\}\\}");
 		// Matcher matcher =
