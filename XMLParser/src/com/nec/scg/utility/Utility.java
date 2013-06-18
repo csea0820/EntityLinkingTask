@@ -1,6 +1,12 @@
 package com.nec.scg.utility;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @Author Xiaofeng
@@ -66,5 +72,36 @@ public class Utility {
 		}
 		return d[n][m];
 
+	}
+	
+	public static Set<String> getKeywords(String f)
+	{
+		Set<String> keywords = new TreeSet<String>();
+		
+		
+		File file = new File(f);
+		if (file.exists()) {
+			BufferedReader br = null;
+			FileReader fr = null;
+			String str;
+
+			try {
+				fr = new FileReader(file);
+				br = new BufferedReader(fr);
+
+				str = br.readLine();
+				
+				while (str != null)
+				{
+					keywords.add(str.replaceAll("¡±", "").replaceAll("¡°", ""));
+					str = br.readLine();
+				}
+			}catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return keywords;
 	}
 }
