@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 
 public class STEMLinking extends AbstractLinking {
 
-	Map<String, Article> articles = new TreeMap<String, Article>();  //<SBS,set<Silver Bauhinia Star，...>>
+	protected Map<String, Article> articles = new TreeMap<String, Article>();  //<SBS,set<Silver Bauhinia Star，...>>
 //	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
 	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
 	Pattern pattern_STEM = null;
@@ -42,7 +42,7 @@ public class STEMLinking extends AbstractLinking {
 			text_content = new StringBuilder(1000);
 	}
 
-	private Article getArticle(String articleName) {
+	protected Article getArticle(String articleName) {
 		Article art = articles.get(articleName);
 		if (art == null) {
 			art = new Article();

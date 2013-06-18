@@ -3,9 +3,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Article implements Comparable<Article> {
-	String articleName;
+	public String articleName;
 //	int id;
-	int countAllLink;  //用来统计连接数的
+	public int countAllLink;  //用来统计连接数的
 	Set<String> referencedArticle = null;
 
 	Set<String> dps = null;
