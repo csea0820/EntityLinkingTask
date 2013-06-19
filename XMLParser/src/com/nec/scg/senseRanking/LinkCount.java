@@ -22,14 +22,13 @@ public class LinkCount extends STEMLinking{
 
 	@Override
 	public void endDocument() throws SAXException {
-		
 		StringBuilder sb = new StringBuilder();
 		for (String art : articles.keySet()) {
 			Article article = articles.get(art);
 			sb.append(art+"\t"+article.countAllLink).append("\n");
 		}
 		try {
-			Utility.writeToFile("D:\\TAC_RESULT\\linkCount\\"+"linkCount"+".txt", sb.toString());
+			Utility.writeToFile("D:\\TAC_RESULT\\linkCount\\"+"linkCount"+".txt", sb.toString().trim());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
