@@ -25,7 +25,7 @@ public class LinkCount extends STEMLinking{
 		StringBuilder sb = new StringBuilder();
 		for (String art : articles.keySet()) {
 			Article article = articles.get(art);
-			sb.append(art+"\t"+article.countAllLink).append("\n");
+			sb.append(art.trim()+"\t"+article.countAllLink).append("\n");
 		}
 		try {
 			Utility.writeToFile("D:\\TAC_RESULT\\linkCount\\"+"linkCount"+".txt", sb.toString().trim());
