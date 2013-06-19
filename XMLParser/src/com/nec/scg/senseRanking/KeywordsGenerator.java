@@ -68,7 +68,8 @@ public class KeywordsGenerator extends STEMLinking{
 	{
 		if (str.contains(":") || str.contains("{") || str.contains("}")
 				|| str.contains("=") || str.contains("<") || str.contains(">")
-				|| str.contains("[") || str.contains("]"))return false;
+				|| str.contains("[") || str.contains("]") || str.contains("!") ||
+				str.contains("#") || str.contains("$") || str.contains("&") )return false;
 		return true;
 	}
 	/**
