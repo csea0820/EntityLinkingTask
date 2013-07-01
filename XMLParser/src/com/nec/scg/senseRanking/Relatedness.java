@@ -14,48 +14,83 @@ import org.apache.lucene.store.FSDirectory;
 
 public class Relatedness {
 
-	Directory directory = FSDirectory.open(new File("D:\\index"));
-	DirectoryReader ireader = DirectoryReader.open(directory);
-	IndexSearcher isearcher = new IndexSearcher(ireader);
-	String entityQuery;
-	String term;
+	Directory directory = null;
+	DirectoryReader ireader = null;
+	IndexSearcher isearcher = null;
 	
-	public int SearchResultCount()throws IOException {
-		Term word0 = new Term("fieldname", entityQuery);
-		Term word1 = new Term("fieldname", term);
+//	private int SearchResultCount(String entityQuery,String term)throws IOException {
+//		Term word0 = new Term("fieldname", entityQuery);
+//		Term word1 = new Term("fieldname", term);
+//		PhraseQuery query = new PhraseQuery();
+//		query.add(word0);
+//		query.add(word1);
+//		query.setSlop(0);
+//		ScoreDoc[] hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs;
+//		System.out.println("一起查询："+hits.length);
+//		return hits.length;
+//	}
+	
+	private int SearchResultCount(String[] searchString) throws IOException
+	{
+		Term[] words = new Term[searchString.length];
+		for (int i = 0; i < searchString.length; i++)
+			words[i] = new Term("fieldname",searchString[i]);
 		PhraseQuery query = new PhraseQuery();
-		query.add(word0);
-		query.add(word1);
+		for (Term t : words)
+			query.add(t);
 		query.setSlop(0);
 		ScoreDoc[] hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs;
-		System.out.println("一起查询："+hits.length);
 		return hits.length;
 	}
 
-	public int SearchResultCount(String searchString)
-			throws IOException {
-		Term word0 = new Term("fieldname", searchString);
-		PhraseQuery query = new PhraseQuery();
-		query.add(word0);
-		query.setSlop(0);
-		ScoreDoc[] hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs;
-		System.out.println("单个查询："+hits.length);
-
-		return hits.length;
+//	private int SearchResultCount(String searchString)
+//			throws IOException {
+//		Term word0 = new Term("fieldname", searchString);
+//		PhraseQuery query = new PhraseQuery();
+//		query.add(word0);
+//		query.setSlop(0);
+//		ScoreDoc[] hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs;
+//		System.out.println("单个查询："+hits.length);
+//
+//		return hits.length;
+//	}
+	public Relatedness() {
+		open();
 	}
-	public Relatedness(String entityQuery,String term) throws IOException {
-		this.entityQuery=entityQuery;
-		this.term=term;
-		float relatedness =(float)(SearchResultCount())/(float)(SearchResultCount(entityQuery) + SearchResultCount(term));
-		System.out.println(relatedness);
-		entityQuery=null;
-		term=null;
-		ireader.close();
-		directory.close();
+	
+	
+	public double relatedness(String entityQuery,String term) throws IOException
+	{
+		return 	(float)(SearchResultCount(new String[]{entityQuery,term}))/(float)(SearchResultCount(new String[]{entityQuery}) + SearchResultCount(new String[]{term}));
+
+	}
+	
+	public void close()
+	{
+		try {
+			ireader.close();
+			directory.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void open()
+	{
+		try {
+			directory = FSDirectory.open(new File("D:\\index"));
+			ireader = DirectoryReader.open(directory);
+			isearcher = new IndexSearcher(ireader);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
-		new Relatedness("software","foundation");
+		Relatedness r = new Relatedness();
+		System.out.println(r.relatedness("software","foundation"));
+		System.out.println(r.relatedness("the software","foundation"));
+		r.close();
 	}
 
 }
