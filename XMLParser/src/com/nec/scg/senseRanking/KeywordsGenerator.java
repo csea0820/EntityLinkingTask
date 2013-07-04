@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -69,7 +68,7 @@ public class KeywordsGenerator extends STEMLinking{
 		if (str.contains(":") || str.contains("{") || str.contains("}")
 				|| str.contains("=") || str.contains("<") || str.contains(">")
 				|| str.contains("[") || str.contains("]") || str.contains("!") ||
-				str.contains("#") || str.contains("$") || str.contains("&") )return false;
+				str.contains("#") || str.contains("$") || str.contains("&") || str.contains("?"))return false;
 		return true;
 	}
 	/**
@@ -87,11 +86,13 @@ public class KeywordsGenerator extends STEMLinking{
 			e.printStackTrace();
 		}
 		
-//		Set<String> set = Utility.getKeywords("keywords.txt");
+//		Set<String> set = Utility.getKeywords("D:\\TAC_RESULT\\keywords.txt");
 //		StringBuilder sb = new StringBuilder();
 //		for (String s: set)
 //		{
-//			sb.append(s).append("\n");
+//			if (s.trim().endsWith(")") || s.trim().contains("?") || s.trim().length() < 5
+//					|| s.contains("&nbsp;"))continue;
+//				sb.append(s).append("\n");
 //		}
 //		Utility.writeToFile("D:\\TAC_RESULT\\keywords.txt", sb.toString());
 		
