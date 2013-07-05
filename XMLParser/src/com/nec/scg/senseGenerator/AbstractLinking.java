@@ -19,17 +19,17 @@ import com.nec.scg.utility.Utility;
  */
 
 public abstract class AbstractLinking extends DefaultHandler {
-	int index = 0;
-	String preTag = null;
+	protected int index = 0;
+	protected String preTag = null;
 
-	long startMili;
+	protected long startMili;
 	long endMili;
 
 	private String outputPath = null;
 	Map<String, Set<String>> resultCache = new TreeMap<String, Set<String>>();
 	protected String outputPrefixName = null;
 
-	AbstractLinking(String outputPath) {
+	protected AbstractLinking(String outputPath) {
 		this.outputPath = outputPath;
 		setOutputPrefixName();
 	}
@@ -102,11 +102,14 @@ public abstract class AbstractLinking extends DefaultHandler {
 	}
 
 	protected void timeStamp() {
-		if (++index % 10000 == 0) {
+	
+		if (++index % 10000 == 0)
+		{
 			endMili = System.currentTimeMillis();
 			System.out.println(index + "," + (endMili - startMili) / 1000);
 			System.gc();
 		}
+		
 	}
 
 	/**

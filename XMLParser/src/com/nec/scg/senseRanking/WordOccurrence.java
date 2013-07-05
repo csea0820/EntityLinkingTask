@@ -121,7 +121,6 @@ public class WordOccurrence extends AbstractLinking{
 				}
 				
 			}
-			index++;
 			timeStamp();
 		}
 

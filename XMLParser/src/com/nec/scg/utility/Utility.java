@@ -93,7 +93,7 @@ public class Utility {
 				
 				while (str != null)
 				{
-					keywords.add(str.replaceAll("¡±", "").replaceAll("¡°", ""));
+					keywords.add(str.replaceAll("¡±", "").replaceAll("¡°", "").toLowerCase());
 					str = br.readLine();
 				}
 			}catch (FileNotFoundException e) {

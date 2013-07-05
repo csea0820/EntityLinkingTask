@@ -20,7 +20,7 @@ public class STEMLinking extends AbstractLinking {
 	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
 	Pattern pattern_STEM = null;
 
-	StringBuilder text_content = null;
+	protected StringBuilder text_content = null;
 
 	protected STEMLinking(String outputPath) {
 		super(outputPath);
