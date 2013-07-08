@@ -55,7 +55,7 @@ public class Top8 {
 				while ((line = in.readLine()) != null) {
 
 					
-					String[] content = line.split(",");
+					String[] content = line.split("\t");
 					if (content.length < 2)
 						continue;
 
