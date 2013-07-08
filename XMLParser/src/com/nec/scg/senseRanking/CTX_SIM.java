@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.nec.scg.utility.Utility;
+
 public class CTX_SIM {
 
 	Relatedness relatedness = new Relatedness();
@@ -52,9 +54,8 @@ public class CTX_SIM {
 	}
 
 	public void calc_CTX_SIM() throws IOException {
-
 		readCandidates("D:\\TAC_RESULT\\TOTAL");
-//		System.out.println(candidates.get("ABC"));
+		// System.out.println(candidates.get("ABC"));
 		
 		Top8 top8 = new Top8();
 		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
@@ -63,19 +64,16 @@ public class CTX_SIM {
 		int index = 1;
 		for (String query : candidates.keySet()) {
 			Set<Entity> set = new TreeSet<Entity>();
-			long startMili;
-			long endMili;
 
-			startMili = System.currentTimeMillis();
 			System.out.println("query " + index);
-//			System.out.println(candidates.get(query));
+			// System.out.println(candidates.get(query));
 			for (String article : candidates.get(query)) {
 				double ctx_sim = 0;
 				Set<String> topTerms = top8Terms.get(article);
-				
+
 				if (topTerms != null) {
-//					System.out.println(article);
-//					System.out.println(topTerms);
+					// System.out.println(article);
+					// System.out.println(topTerms);
 					for (String topTerm : topTerms) {
 						ctx_sim += relatedness.relatedness(query, topTerm);
 					}
@@ -84,12 +82,24 @@ public class CTX_SIM {
 					set.add(new Entity(article, 0));
 			}
 			cxt_sim_score.put(query, set);
-			
-			endMili = System.currentTimeMillis();
-			System.out.println("×ÜºÄÊ±Îª£º" + (endMili - startMili) + "ºÁÃë");
+
+
 		}
 
+		writeToFile();
 		relatedness.close();
+	}
+
+	private void writeToFile() {
+
+		for (String query : cxt_sim_score.keySet()) {
+			StringBuilder sb = new StringBuilder();
+			for (Entity e : cxt_sim_score.get(query))
+				sb.append(e.articleName).append("\t").append(e.CTX_SIM)
+						.append("\n");
+			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\"+query+".txt", sb.toString());
+		}
+
 	}
 
 	private void readCandidates(String diretory) {
@@ -102,6 +112,9 @@ public class CTX_SIM {
 
 				String query = file.getName().split("_")[1];
 				Set<String> candidate = null;
+
+				if (candidates.containsKey(query))
+					continue;
 
 				BufferedReader br = null;
 				FileReader fr = null;
