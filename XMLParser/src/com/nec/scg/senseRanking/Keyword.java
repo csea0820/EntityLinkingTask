@@ -5,17 +5,20 @@
 package com.nec.scg.senseRanking;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 public class Keyword implements Comparable<Keyword>{
 
+	int index;
 	String keyword;
 	String targetPageName;
 	
-	public Keyword(String keyword)
+	public Keyword(int  index)
 	{
-		this.keyword = keyword;
+		this.index = index;
 	}
 	
 	public Keyword(String keyword,String targetPageName)
@@ -50,17 +53,28 @@ public class Keyword implements Comparable<Keyword>{
 
 	@Override
 	public int compareTo(Keyword o) {
-		return keyword.compareTo(o.keyword);
+		return o.index - index;
+	}
+	
+	@Override
+	public String toString() {
+		return index+"";
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Map<Keyword,String> map = new TreeMap<Keyword,String>();
-		map.put(new Keyword("A","B"), "C");
-		map.put(new Keyword("B","J"), "D");
-			System.out.println(map.get("A"));
+//		Map<Keyword,String> map = new TreeMap<Keyword,String>();
+//		map.put(new Keyword("A","B"), "C");
+//		map.put(new Keyword("B","J"), "D");
+//			System.out.println(map.get("A"));
+		
+		Set<Keyword> set = new TreeSet<Keyword>();
+		set.add(new Keyword(2));
+		set.add(new Keyword(1));
+		set.add(new Keyword(3));
+		System.out.println(set);
 		
 	}
 }

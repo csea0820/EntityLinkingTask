@@ -47,7 +47,34 @@ public class ArticleKeywordGenerator extends STEMLinking {
 //		}
 //		
 //		Utility.writeToFile("D:\\TAC_RESULT\\links.txt", sb.toString());
+		Map<String,Set<String>> articleTerms = new TreeMap<String,Set<String>>();
 		
+		for (String term : links.keySet())
+		{
+			term.replaceAll("\n", " ");
+			for (String article : links.get(term))
+			{
+				Set<String> set = articleTerms.get(article);
+				if (set == null){
+					set = new TreeSet<String>();
+					articleTerms.put(article, set);
+				}
+				set.add(term);
+			}
+		}
+		links = null;
+		keywordInfo = null;
+		System.gc();
+		int count = 0;
+		StringBuilder sb = new StringBuilder();
+		for (String article : articleTerms.keySet()){
+			sb.append(article);
+			if (++count % 10000 == 0)System.out.println(count);
+			for (String term : articleTerms.get(article))
+				sb.append(",").append(term);
+			sb.append("\n");
+		}
+		Utility.writeToFile("D:\\TAC_RESULT\\articleTerms.txt", sb.toString());
 		
 	}
 
