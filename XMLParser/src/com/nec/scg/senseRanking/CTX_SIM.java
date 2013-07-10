@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.lucene.queryparser.classic.ParseException;
+
 import com.nec.scg.utility.Utility;
 
 public class CTX_SIM {
@@ -65,7 +67,7 @@ public class CTX_SIM {
 		for (String query : candidates.keySet()) {
 			Set<Entity> set = new TreeSet<Entity>();
 
-			System.out.println("query " + index);
+			System.out.println("query " + index++);
 			// System.out.println(candidates.get(query));
 			for (String article : candidates.get(query)) {
 				double ctx_sim = 0;
@@ -75,15 +77,17 @@ public class CTX_SIM {
 					// System.out.println(article);
 					// System.out.println(topTerms);
 					for (String topTerm : topTerms) {
-						ctx_sim += relatedness.relatedness(query, topTerm);
+						try {
+							ctx_sim += relatedness.relatedness(query, topTerm);
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
 					}
 					set.add(new Entity(article, ctx_sim / topTerms.size()));
 				} else
 					set.add(new Entity(article, 0));
 			}
 			cxt_sim_score.put(query, set);
-
-
 		}
 
 		writeToFile();
