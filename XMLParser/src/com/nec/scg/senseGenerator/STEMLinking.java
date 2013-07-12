@@ -1,4 +1,5 @@
 package com.nec.scg.senseGenerator;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
@@ -15,12 +16,25 @@ import org.xml.sax.SAXException;
 
 public class STEMLinking extends AbstractLinking {
 
-	protected Map<String, Article> articles = new TreeMap<String, Article>();  //<SBS,set<Silver Bauhinia Star，...>>
-//	private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
+	protected Map<String, Article> articles = new TreeMap<String, Article>(); // <Silver
+																				// Bauhinia
+																				// Star,set<SBS，...>>
+	// private final String regular_all_SETM = "\\s+\\[\\[[^\\[\\[:]+\\]\\]"; //
+	// 匹配所有以[[开始，中间内容不包含:，且以]]结尾的字符串
 	private final String regular_partial_SETM = "\\s+\\[\\[[^\\[+:=\\{\\}\\]]+\\|[^\\]+]+\\]\\]"; // 匹配所有以[[开始，中间内容不包含:，同时以|分隔，最后以]]结尾的字符串
 	Pattern pattern_STEM = null;
 
 	protected StringBuilder text_content = null;
+
+	class LinkCount {
+		String article;
+		int linkCnt;
+
+		public LinkCount(String article, int linkCnt) {
+			this.article = article;
+			this.linkCnt = linkCnt;
+		}
+	}
 
 	protected STEMLinking(String outputPath) {
 		super(outputPath);
@@ -79,13 +93,55 @@ public class STEMLinking extends AbstractLinking {
 	}
 
 	@Override
+	public void endDocument() throws SAXException {
+
+		endMili = System.currentTimeMillis();
+		System.out.println("生成候选者耗时为：" + (endMili - startMili) + "毫秒");
+		super.endDocument();
+
+		Map<String, Set<LinkCount>> map = new TreeMap<String, Set<LinkCount>>();
+
+		for (String article : articles.keySet()) {
+			Article art = articles.get(article);
+
+			Map<String, Integer> sourceStatistic = art.getSourceStatistic();
+			for (String source : sourceStatistic.keySet()) {
+				Set<LinkCount> set = map.get(source);
+				if (set == null) {
+					set = new TreeSet<LinkCount>();
+				}
+				set.add(new LinkCount(art.articleName, sourceStatistic
+						.get(source)));
+			}
+		}
+
+		for (String source : map.keySet()) {
+			int totalCnt = 0;
+			for (LinkCount lc : map.get(source)) {
+					totalCnt += lc.linkCnt;
+			}
+			
+			for (LinkCount lc : map.get(source))
+			{
+				articles.get(lc.article).setLink_prob(lc.linkCnt*1.0/totalCnt);
+			}
+		}
+
+		queryTask("linkresult");
+
+		endMili = System.currentTimeMillis();
+		System.out.println("总耗时为：" + (endMili - startMili) + "毫秒");
+		super.endDocument();
+	}
+
+	@Override
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
 		if (preTag != null) {
 			String content = new String(ch, start, length);
 			if (preTag.equals("text")) {
 				text_content.append(content);
-			} 
+			}
 		}
 	}
 
@@ -101,6 +157,8 @@ public class STEMLinking extends AbstractLinking {
 	protected void addToSETM(String source, String target) {
 		Article art = getArticle(target);
 		art.addSETM(source);
+		art.addSource(source);
+
 	}
 
 	@Override
@@ -125,7 +183,8 @@ public class STEMLinking extends AbstractLinking {
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		try {
 			SAXParser saxParser = spf.newSAXParser();
-			saxParser.parse(new File(filename), new STEMLinking("D:\\TAC_RESULT\\STEM"));
+			saxParser.parse(new File(filename), new STEMLinking(
+					"D:\\TAC_RESULT\\STEM"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
