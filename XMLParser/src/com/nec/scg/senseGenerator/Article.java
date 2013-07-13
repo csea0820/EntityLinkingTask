@@ -1,11 +1,15 @@
 package com.nec.scg.senseGenerator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Article implements Comparable<Article> {
 	public String articleName;
 //	int id;
 	public int countAllLink;  //用来统计连接数的
+	
+	private double link_prob = 0.0;
 	Set<String> referencedArticle = null;
 
 	Set<String> dps = null;
@@ -13,13 +17,14 @@ public class Article implements Comparable<Article> {
 	Set<String> setm = null;
 	Set<String> redirectNames = null;
 
-	
+	Map<String,Integer> sourceStatistic = null;
 	String normalizedName = null;
 
 	Article() {
 //		referencedArticle = new TreeSet<String>();
 //		dps = new TreeSet<String>();
 		setm = new TreeSet<String>();
+		sourceStatistic = new TreeMap<String,Integer>();
 //		eab = new TreeSet<String>();
 //		redirectNames = new TreeSet<String>();
 	}
@@ -54,6 +59,12 @@ public class Article implements Comparable<Article> {
 		//referencedArticle.add(article);
 	}
 
+	public void addSource(String source){
+		Integer cnt = sourceStatistic.get(source);
+		if (cnt == null)sourceStatistic.put(source, 1);
+		else sourceStatistic.put(source, cnt+1);
+	}
+	
 	public void addSETM(String source) {
 		setm.add(source);
 
@@ -68,6 +79,10 @@ public class Article implements Comparable<Article> {
 		setm.add(dp);
 	}
 
+	public void setLink_prob(double link_prob) {
+		this.link_prob = link_prob;
+	}
+	
 	public void addEAB(String shortName) {
 		//eab.add(shortName);
 		setm.add(shortName.toLowerCase());
@@ -75,6 +90,10 @@ public class Article implements Comparable<Article> {
 
 	public Set<String> getSetm() {
 		return setm;
+	}
+	
+	public Map<String, Integer> getSourceStatistic() {
+		return sourceStatistic;
 	}
 	
 	public String getNormalizedName() {
