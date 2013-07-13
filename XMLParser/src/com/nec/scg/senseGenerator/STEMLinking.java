@@ -14,6 +14,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.nec.scg.utility.Utility;
+
 public class STEMLinking extends AbstractLinking {
 
 	protected Map<String, Article> articles = new TreeMap<String, Article>(); // <Silver
@@ -26,13 +28,18 @@ public class STEMLinking extends AbstractLinking {
 
 	protected StringBuilder text_content = null;
 
-	class LinkCount {
+	class LinkCount implements Comparable<LinkCount> {
 		String article;
 		int linkCnt;
 
 		public LinkCount(String article, int linkCnt) {
 			this.article = article;
 			this.linkCnt = linkCnt;
+		}
+
+		@Override
+		public int compareTo(LinkCount o) {
+			return article.compareTo(o.article);
 		}
 	}
 
@@ -59,7 +66,7 @@ public class STEMLinking extends AbstractLinking {
 	protected Article getArticle(String articleName) {
 		Article art = articles.get(articleName);
 		if (art == null) {
-			art = new Article();
+			art = new Article(articleName);
 			articles.put(articleName, art);
 		}
 
@@ -70,7 +77,8 @@ public class STEMLinking extends AbstractLinking {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 
-		if ("text".equals(preTag)) {
+		if ("text".equals(preTag) ) {
+//			if (index <= 1000)
 			parseText();
 			timeStamp();
 		}
@@ -105,25 +113,29 @@ public class STEMLinking extends AbstractLinking {
 			Article art = articles.get(article);
 
 			Map<String, Integer> sourceStatistic = art.getSourceStatistic();
+			
+			
 			for (String source : sourceStatistic.keySet()) {
 				Set<LinkCount> set = map.get(source);
 				if (set == null) {
 					set = new TreeSet<LinkCount>();
+					map.put(source, set);
 				}
 				set.add(new LinkCount(art.articleName, sourceStatistic
 						.get(source)));
 			}
+			
 		}
 
 		for (String source : map.keySet()) {
 			int totalCnt = 0;
 			for (LinkCount lc : map.get(source)) {
-					totalCnt += lc.linkCnt;
+				totalCnt += lc.linkCnt;
 			}
-			
-			for (LinkCount lc : map.get(source))
-			{
-				articles.get(lc.article).setLink_prob(lc.linkCnt*1.0/totalCnt);
+			for (LinkCount lc : map.get(source)) {
+				articles.get(lc.article).setLink_prob(
+						lc.linkCnt * 1.0 / totalCnt);
+
 			}
 		}
 
@@ -172,6 +184,53 @@ public class STEMLinking extends AbstractLinking {
 				candidates.add(art);
 		}
 		return candidates;
+	}
+
+	public void queryTask(String filePath) {
+		ExpectedLinkResult elr = new ExpectedLinkResult();
+		elr.readLinkResult(filePath);
+
+		EvaluationMetric em = new EvaluationMetric();
+
+		int querySize = elr.getQueries().size();
+		em.allRelevantPagesPlus(querySize);
+		Set<String> candidates = null;
+		for (int i = 0; i < querySize; i++) {
+
+			if (elr.getExpectedResult().get(i).equals("NIL")) {
+				em.returnedRelevantPagesPlus();
+				// continue;
+			}
+
+			candidates = query(elr.getQueries().get(i).toLowerCase());
+			em.allReturnedPagesPlus(candidates.size());
+			if (candidates.contains(elr.getExpectedResult().get(i)))
+				em.returnedRelevantPagesPlus();
+
+			StringBuilder sb = new StringBuilder();
+			for (String can : candidates)
+				sb.append(can).append("\n");
+
+			Utility.writeToFile(outputPath + "\\" + outputPrefixName + "_"
+					+ elr.getQueries().get(i) + "_"
+					+ elr.getExpectedResult().get(i) + "_" + i + ".txt",
+					sb.toString());
+
+			if (candidates.size() > 0) {
+				sb = new StringBuilder();
+				for (String can : candidates)
+					sb.append(can).append("\t")
+							.append(articles.get(can).getLink_prob())
+							.append("\n");
+
+				Utility.writeToFile("D:\\TAC_RESULT\\link_prob\\"
+						+ elr.getQueries().get(i) + ".txt", sb.toString());
+			}
+
+		}
+
+		System.out.println("Recall=" + em.recall() + ",Precision="
+				+ em.precision());
 	}
 
 	/**

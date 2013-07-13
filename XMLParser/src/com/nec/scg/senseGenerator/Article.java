@@ -61,8 +61,10 @@ public class Article implements Comparable<Article> {
 
 	public void addSource(String source){
 		Integer cnt = sourceStatistic.get(source);
-		if (cnt == null)sourceStatistic.put(source, 1);
+		if (cnt == null)sourceStatistic.put(source, cnt = 1);
 		else sourceStatistic.put(source, cnt+1);
+		
+//		System.out.println("source = " + source + ",cnt = " + (cnt +1));
 	}
 	
 	public void addSETM(String source) {
@@ -139,5 +141,9 @@ public class Article implements Comparable<Article> {
 		
 		
 		return false;
+	}
+	
+	public double getLink_prob() {
+		return link_prob;
 	}
 }

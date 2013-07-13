@@ -25,7 +25,7 @@ public abstract class AbstractLinking extends DefaultHandler {
 	protected long startMili;
 	long endMili;
 
-	private String outputPath = null;
+	protected String outputPath = null;
 	Map<String, Set<String>> resultCache = new TreeMap<String, Set<String>>();
 	protected String outputPrefixName = null;
 
@@ -34,7 +34,7 @@ public abstract class AbstractLinking extends DefaultHandler {
 		setOutputPrefixName();
 	}
 
-	private Set<String> query(String query) {
+	protected Set<String> query(String query) {
 		
 		Set<String> cache = resultCache.get(query);
 		if (cache != null) {
