@@ -12,7 +12,7 @@ public class EvaluationMetric {
 	
 	
 	
-	EvaluationMetric()
+	public EvaluationMetric()
 	{
 		m_all_relevant_pages = 0;
 		m_returned_relevant_pages = 0;

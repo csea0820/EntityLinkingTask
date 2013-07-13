@@ -22,7 +22,7 @@ public class CTX_SIM {
 
 	Relatedness relatedness = new Relatedness();
 	Map<String, Set<String>> candidates = new TreeMap<String, Set<String>>();
-	Map<String, Set<Entity>> cxt_sim_score = new TreeMap<String, Set<Entity>>();
+	Map<String, Set<ArticleAttributes>> cxt_sim_score = new TreeMap<String, Set<ArticleAttributes>>();
 
 	class Entity implements Comparable<Entity> {
 		String articleName;
@@ -65,7 +65,7 @@ public class CTX_SIM {
 		top8.close();
 		int index = 1;
 		for (String query : candidates.keySet()) {
-			Set<Entity> set = new TreeSet<Entity>();
+			Set<ArticleAttributes> set = new TreeSet<ArticleAttributes>();
 
 			System.out.println("query " + index++);
 			// System.out.println(candidates.get(query));
@@ -76,16 +76,21 @@ public class CTX_SIM {
 				if (topTerms != null) {
 					// System.out.println(article);
 					// System.out.println(topTerms);
+					int size = 0;
 					for (String topTerm : topTerms) {
 						try {
+							if (topTerm.contains("<") || topTerm.contains(">") || topTerm.length() > 20 || size > 8)continue;
 							ctx_sim += relatedness.relatedness(query, topTerm);
+							size++;
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
 					}
-					set.add(new Entity(article, ctx_sim / topTerms.size()));
+					if (size != 0)
+						set.add(new ArticleAttributes(article, ctx_sim / size));
+					else set.add(new ArticleAttributes(article,ctx_sim / size));
 				} else
-					set.add(new Entity(article, 0));
+					set.add(new ArticleAttributes(article, 0));
 			}
 			cxt_sim_score.put(query, set);
 		}
@@ -98,8 +103,8 @@ public class CTX_SIM {
 
 		for (String query : cxt_sim_score.keySet()) {
 			StringBuilder sb = new StringBuilder();
-			for (Entity e : cxt_sim_score.get(query))
-				sb.append(e.articleName).append("\t").append(e.CTX_SIM)
+			for (ArticleAttributes e : cxt_sim_score.get(query))
+				sb.append(e.name).append("\t").append(e.ctx_sim)
 						.append("\n");
 			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\"+query+".txt", sb.toString());
 		}

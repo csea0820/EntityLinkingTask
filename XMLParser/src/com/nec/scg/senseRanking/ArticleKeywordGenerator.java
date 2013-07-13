@@ -71,7 +71,7 @@ public class ArticleKeywordGenerator extends STEMLinking {
 			sb.append(article);
 			if (++count % 10000 == 0)System.out.println(count);
 			for (String term : articleTerms.get(article))
-				sb.append("\t").append(term);
+				sb.append("\t").append(term.trim());
 			sb.append("\n");
 		}
 		Utility.writeToFile("D:\\TAC_RESULT\\articleTerms.txt", sb.toString());

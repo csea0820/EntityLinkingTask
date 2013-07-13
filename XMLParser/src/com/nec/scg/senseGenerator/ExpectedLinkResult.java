@@ -18,11 +18,16 @@ public class ExpectedLinkResult {
 	List<String> queries = null;
 	List<String> expectedResult = null;
 	
-	ExpectedLinkResult() {
+	public ExpectedLinkResult() {
 		queries = new ArrayList<String>();
 		expectedResult = new ArrayList<String>();
 	}
 	
+	
+	public String getExpectedResult(String query){
+		int index = queries.indexOf(query);
+		return expectedResult.get(index);
+	}
 	
 	public void readLinkResult(String filePath)
 	{
