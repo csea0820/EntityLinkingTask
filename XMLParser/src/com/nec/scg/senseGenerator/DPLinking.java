@@ -13,6 +13,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.nec.scg.senseRanking.ArticleAttributes;
+
 public class DPLinking extends AbstractLinking {
 
 	DPLinking(String outputPath) {
@@ -123,14 +125,14 @@ public class DPLinking extends AbstractLinking {
 	}
 	
 	@Override
-	protected Set<String> senseGenerator(String query) {
-		Set<String> candidates = new TreeSet<String>();
+	protected Set<ArticleAttributes> senseGenerator(String query) {
+		Set<ArticleAttributes> candidates = new TreeSet<ArticleAttributes>();
 		String q = query.toLowerCase();
 		for (String art : articles.keySet())
 		{
 			Article article = articles.get(art);
 			if (article.match(q))
-				candidates.add(art);
+				candidates.add(new ArticleAttributes(art));
 		}
 		return candidates;
 	}
