@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.nec.scg.senseRanking.ArticleAttributes;
 import com.nec.scg.utility.Utility;
 /*
  * table 1,TreeMap<normalizedTitleName, TreeSet<redirectName>>()
@@ -133,14 +134,21 @@ public class NARLinking extends AbstractLinking {
 	}
 
 	@Override
-	protected Set<String> senseGenerator(String query) {
-		Set<String> candidates = new TreeSet<String>();
+	protected Set<ArticleAttributes> senseGenerator(String query) {
+		Set<ArticleAttributes> candidates = new TreeSet<ArticleAttributes>();
 			for (String nor : NAR.keySet()) {
 				if (!nor.equals("")) {
-					if (nor.equals(query) || isSubString(nor, query)
-							|| isSubString(query, nor)||(nor.length() == query.length()&&Utility.getEditDistance(nor, query)*1.0/query.length() <= 0.2)) {
-							for (String ar : NAR.get(nor))
-							candidates.add(ar);
+					boolean substr_test = false;
+					boolean editDist_test = false;
+					if (nor.equals(query) || (substr_test = isSubString(nor, query))
+							|| (substr_test =isSubString(query, nor)) ||(nor.length() == query.length()&&(editDist_test = (Utility.getEditDistance(nor, query)*1.0/query.length() <= 0.2)))) {
+							
+						for (String ar : NAR.get(nor)){
+							ArticleAttributes art = new ArticleAttributes(ar);
+							art.setEditDistance_test(editDist_test);
+							art.setSubstr_test(substr_test);
+							candidates.add(art);
+						}
 					}
 //					 else {
 //					 String sn = getShortName(nor);
