@@ -14,7 +14,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import com.nec.scg.senseRanking.ArticleAttributes;
 import com.nec.scg.utility.Utility;
 
 public class STEMLinking extends AbstractLinking {
@@ -175,14 +174,14 @@ public class STEMLinking extends AbstractLinking {
 	}
 
 	@Override
-	protected Set<ArticleAttributes> senseGenerator(String query) {
-		Set<ArticleAttributes> candidates = new TreeSet<ArticleAttributes>();
+	protected Set<String> senseGenerator(String query) {
+		Set<String> candidates = new TreeSet<String>();
 		String q = query.toLowerCase();
 		for (String art : articles.keySet()) {
 			Article article = articles.get(art);
 			// article.setArticleName(art);
 			if (article.match(q))
-				candidates.add(new ArticleAttributes(art));
+				candidates.add(art);
 		}
 		return candidates;
 	}
@@ -195,7 +194,7 @@ public class STEMLinking extends AbstractLinking {
 
 		int querySize = elr.getQueries().size();
 		em.allRelevantPagesPlus(querySize);
-		Set<ArticleAttributes> candidates = null;
+		Set<String> candidates = null;
 		for (int i = 0; i < querySize; i++) {
 
 			if (elr.getExpectedResult().get(i).equals("NIL")) {
@@ -209,8 +208,8 @@ public class STEMLinking extends AbstractLinking {
 				em.returnedRelevantPagesPlus();
 
 			StringBuilder sb = new StringBuilder();
-			for (ArticleAttributes can : candidates)
-				sb.append(can.getName()).append("\n");
+			for (String can : candidates)
+				sb.append(can).append("\n");
 
 			Utility.writeToFile(outputPath + "\\" + outputPrefixName + "_"
 					+ elr.getQueries().get(i) + "_"
@@ -219,8 +218,8 @@ public class STEMLinking extends AbstractLinking {
 
 			if (candidates.size() > 0) {
 				sb = new StringBuilder();
-				for (ArticleAttributes can : candidates)
-					sb.append(can.getName()).append("\t")
+				for (String can : candidates)
+					sb.append(can).append("\t")
 							.append(articles.get(can).getLink_prob())
 							.append("\n");
 

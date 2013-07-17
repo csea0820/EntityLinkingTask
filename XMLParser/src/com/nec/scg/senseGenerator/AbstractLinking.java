@@ -11,7 +11,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.nec.scg.senseRanking.ArticleAttributes;
 import com.nec.scg.utility.Utility;
 
 /**
@@ -27,7 +26,7 @@ public abstract class AbstractLinking extends DefaultHandler {
 	long endMili;
 
 	protected String outputPath = null;
-	Map<String, Set<ArticleAttributes>> resultCache = new TreeMap<String, Set<ArticleAttributes>>();
+	Map<String, Set<String>> resultCache = new TreeMap<String, Set<String>>();
 	protected String outputPrefixName = null;
 
 	protected AbstractLinking(String outputPath) {
@@ -35,20 +34,20 @@ public abstract class AbstractLinking extends DefaultHandler {
 		setOutputPrefixName();
 	}
 
-	protected Set<ArticleAttributes> query(String query) {
+	protected Set<String> query(String query) {
 		
-		Set<ArticleAttributes> cache = resultCache.get(query);
+		Set<String> cache = resultCache.get(query);
 		if (cache != null) {
 			return cache;
 		}
 
-		Set<ArticleAttributes> candidates = senseGenerator(query);
+		Set<String> candidates = senseGenerator(query);
 
 		resultCache.put(query, candidates);
 		return candidates;
 	}
 
-	abstract protected Set<ArticleAttributes> senseGenerator(String query);
+	abstract protected Set<String> senseGenerator(String query);
 
 	abstract protected void setOutputPrefixName();
 
@@ -60,7 +59,7 @@ public abstract class AbstractLinking extends DefaultHandler {
 
 		int querySize = elr.getQueries().size();
 		em.allRelevantPagesPlus(querySize);
-		Set<ArticleAttributes> candidates = null;
+		Set<String> candidates = null;
 		for (int i = 0; i < querySize; i++) {
 
 			if (elr.getExpectedResult().get(i).equals("NIL")) {
@@ -70,12 +69,12 @@ public abstract class AbstractLinking extends DefaultHandler {
 
 			candidates = query(elr.getQueries().get(i).toLowerCase());
 			em.allReturnedPagesPlus(candidates.size());
-//			if (candidates.contains(elr.getExpectedResult().get(i)))
-//				em.returnedRelevantPagesPlus();
+			if (candidates.contains(elr.getExpectedResult().get(i)))
+				em.returnedRelevantPagesPlus();
 
 			StringBuilder sb = new StringBuilder();
-			for (ArticleAttributes can : candidates)
-				sb.append(can.getName()).append("\t").append(can.isSubstr_test()).append("\t").append(can.isEditDistance_test()).append("\n");
+			for (String can : candidates)
+				sb.append(can).append("\n");
 
 			Utility.writeToFile(outputPath + "\\" + outputPrefixName + "_"
 					+ elr.getQueries().get(i) + "_"
