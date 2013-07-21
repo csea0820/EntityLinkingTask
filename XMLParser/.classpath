@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/lucene-queries-4.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-queryparser-4.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.commons.codec.jar"/>
+	<classpathentry kind="lib" path="lib/weka-src.jar"/>
+	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="lib/weka-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -4,6 +4,17 @@
  */
 package com.nec.scg.senseRanking;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
+
 
 public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	String name;
@@ -17,6 +28,8 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	double ctx_wt;
 	int ctx_ct;
 	double link_combo;
+	
+	boolean correctSense; // used only for training
 	
 	public ArticleAttributes(String name)
 	{	
@@ -75,7 +88,66 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	
 	@Override
 	public String toString() {
-		return name+"\t"+link_prob+"\t"+ctx_sim+"\t"+link_combo+"\n";
+		return name+"\t"+link_prob+"\t"+editDistance_test+"\t"+substr_test+"\t"+ctx_sim+"\t"
+				+ctx_wt+"\t"+ctx_ct+"\t"+link_combo+"\n";
+	}
+	
+	public static ArticleAttributes getArticleFromString(String content){
+		
+		String[] contents = content.split("\t");
+
+		ArticleAttributes articleAttr = new ArticleAttributes(
+				contents[0]);
+		articleAttr.setLink_prob(Double.parseDouble(contents[1]));
+		articleAttr.setEditDistance_test(Boolean.parseBoolean(contents[2]));
+		articleAttr.setSubstr_test(Boolean.parseBoolean(contents[3]));
+		articleAttr.setCtx_sim(Double.parseDouble(contents[4]));
+		articleAttr.setCtx_wt(Double.parseDouble(contents[5]));
+		articleAttr.setCtx_ct(Integer.parseInt(contents[6]));
+		articleAttr.setLink_prob(Double.parseDouble(contents[7]));
+		
+		
+		return articleAttr;
+	}
+	
+	public static String getArffHeader(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("@relation SenseAttribute\n");
+		sb.append("@attribute 'LINK_PROB' real\n");
+		sb.append("@attribute 'EDITDIST_TEST' {'true','false'}\n");
+		sb.append("@attribute 'SUBSTR_TEST' {'true','false'}\n");
+		sb.append("@attribute 'CTX_SIM' real\n");
+		sb.append("@attribute 'CTX_WT' real\n");
+		sb.append("@attribute 'CTX_CT' real\n");
+		sb.append("@attribute 'LINK_COMBO' real\n");
+		sb.append("@attribute 'CORRECT' {'true','false'}\n");
+	
+		return sb.toString();
+	}
+	
+	public Instance toWekaInstance(Instances instances){
+		double[] instanceValue = new double[instances.numAttributes()];
+		instanceValue[0] = link_prob;
+		instanceValue[1] = instances.attribute(1).addStringValue(String.valueOf(editDistance_test));
+		instanceValue[2] = instances.attribute(2).addStringValue(String.valueOf(substr_test));
+		instanceValue[3] = ctx_sim;
+		instanceValue[4] = ctx_wt;
+		instanceValue[5] = ctx_ct;
+		instanceValue[6] = link_combo;
+//		instanceValue[7] = 0;
+
+		return new DenseInstance(1.0,instanceValue);
+	}
+	
+	public String toArffFormat(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(link_prob).append(",'").append(isEditDistance_test()).append("','").append(substr_test).
+		append("',").append(ctx_sim).append(",").append(ctx_wt).append(",").append(ctx_ct).append(",").append(link_combo)
+		.append(",'").append(correctSense).append("'\n");
+		
+		return sb.toString();
 	}
 
 	public boolean isSubstr_test() {
@@ -105,4 +177,50 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	public double getCtx_sim() {
 		return ctx_sim;
 	}
+	
+	public void setCorrectSense(boolean correctSense) {
+		this.correctSense = correctSense;
+	}
+	
+	public boolean isCorrectSense() {
+		return correctSense;
+	}
+	
+	public void setLink_combo(double link_combo) {
+		this.link_combo = link_combo;
+	}
+	
+	public static List<ArticleAttributes> readSenses(File candiatesFile) {
+		List<ArticleAttributes> ret = new ArrayList<ArticleAttributes>();
+
+		BufferedReader br = null;
+		FileReader fr = null;
+		String str;
+
+		try {
+			fr = new FileReader(candiatesFile);
+			br = new BufferedReader(fr);
+
+			str = br.readLine();
+			int count = 0;
+			while (str != null && count != 3) {
+
+				ret.add(ArticleAttributes.getArticleFromString(str));
+
+				str = br.readLine();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fr.close();
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return ret;
+	}
+	
 }

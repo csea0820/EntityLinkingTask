@@ -34,7 +34,7 @@ public class WordOccurrence extends AbstractLinking{
 
 	
 	@Override
-	protected Set<String> senseGenerator(String query) {
+	protected Set<ArticleAttributes> senseGenerator(String query) {
 		return null;
 	}
 

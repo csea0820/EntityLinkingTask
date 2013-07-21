@@ -21,8 +21,8 @@ import com.nec.scg.utility.Utility;
 public class CTX_SIM {
 
 	Relatedness relatedness = new Relatedness();
-	Map<String, Set<String>> candidates = new TreeMap<String, Set<String>>();
-	Map<String, Set<ArticleAttributes>> cxt_sim_score = new TreeMap<String, Set<ArticleAttributes>>();
+	Map<String, Set<ArticleAttributes>> candidates = new TreeMap<String, Set<ArticleAttributes>>();
+//	Map<String, Set<ArticleAttributes>> cxt_sim_score = new TreeMap<String, Set<ArticleAttributes>>();
 
 	class Entity implements Comparable<Entity> {
 		String articleName;
@@ -58,20 +58,19 @@ public class CTX_SIM {
 	public void calc_CTX_SIM() throws IOException {
 		readCandidates("D:\\TAC_RESULT\\TOTAL");
 		// System.out.println(candidates.get("ABC"));
-		
+
 		Top8 top8 = new Top8();
 		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
 
 		top8.close();
 		int index = 1;
 		for (String query : candidates.keySet()) {
-			Set<ArticleAttributes> set = new TreeSet<ArticleAttributes>();
 
 			System.out.println("query " + index++);
 			// System.out.println(candidates.get(query));
-			for (String article : candidates.get(query)) {
+			for (ArticleAttributes article : candidates.get(query)) {
 				double ctx_sim = 0;
-				Set<String> topTerms = top8Terms.get(article);
+				Set<String> topTerms = top8Terms.get(article.getName());
 
 				if (topTerms != null) {
 					// System.out.println(article);
@@ -79,7 +78,9 @@ public class CTX_SIM {
 					int size = 0;
 					for (String topTerm : topTerms) {
 						try {
-							if (topTerm.contains("<") || topTerm.contains(">") || topTerm.length() > 20 || size > 8)continue;
+							if (topTerm.contains("<") || topTerm.contains(">")
+									|| topTerm.length() > 20 || size > 8)
+								continue;
 							ctx_sim += relatedness.relatedness(query, topTerm);
 							size++;
 						} catch (ParseException e) {
@@ -87,12 +88,13 @@ public class CTX_SIM {
 						}
 					}
 					if (size != 0)
-						set.add(new ArticleAttributes(article, ctx_sim / size));
-					else set.add(new ArticleAttributes(article,ctx_sim / size));
-				} else
-					set.add(new ArticleAttributes(article, 0));
+						article.setCtx_sim(ctx_sim / size);
+					article.setCtx_ct(size);
+					article.setCtx_wt(ctx_sim);
+//					set.add(art);
+				}
 			}
-			cxt_sim_score.put(query, set);
+//			cxt_sim_score.put(query, set);
 		}
 
 		writeToFile();
@@ -101,12 +103,13 @@ public class CTX_SIM {
 
 	private void writeToFile() {
 
-		for (String query : cxt_sim_score.keySet()) {
+		for (String query : candidates.keySet()) {
 			StringBuilder sb = new StringBuilder();
-			for (ArticleAttributes e : cxt_sim_score.get(query))
-				sb.append(e.name).append("\t").append(e.ctx_sim)
-						.append("\n");
-			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\"+query+".txt", sb.toString());
+			for (ArticleAttributes e : candidates.get(query))
+				sb.append(e.name).append("\t").append(e.ctx_sim).append("\t").append(e.ctx_wt).
+				append("\t").append(e.ctx_ct).append("\t").append(e.substr_test).append("\t").append(e.editDistance_test).append("\n");
+			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\" + query + ".txt",
+					sb.toString());
 		}
 
 	}
@@ -120,7 +123,7 @@ public class CTX_SIM {
 			for (File file : files) {
 
 				String query = file.getName().split("_")[1];
-				Set<String> candidate = null;
+				Set<ArticleAttributes> candidate = null;
 
 				if (candidates.containsKey(query))
 					continue;
@@ -134,9 +137,10 @@ public class CTX_SIM {
 					br = new BufferedReader(fr);
 
 					str = br.readLine();
-					candidate = new TreeSet<String>();
+					candidate = new TreeSet<ArticleAttributes>();
 					while (str != null) {
-						candidate.add(str);
+						String[] contents = str.split("\t");
+						candidate.add(new ArticleAttributes(contents[0], Boolean.parseBoolean(contents[2]), Boolean.parseBoolean(contents[1])));
 						str = br.readLine();
 					}
 					candidates.put(query, candidate);

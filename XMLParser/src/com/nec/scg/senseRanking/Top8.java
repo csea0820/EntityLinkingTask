@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.lucene.queryparser.classic.ParseException;
+
 
 public class Top8 {
 	String path = "D:\\TAC_RESULT\\";
@@ -18,7 +20,7 @@ public class Top8 {
 	Map<String, Double> linkability = null;
 
 	Relatedness relatedness = new Relatedness();
-	
+
 
 	class Top8Entity implements Comparable<Top8Entity>{
 		String term;
@@ -61,7 +63,8 @@ public class Top8 {
 
 					termsSet = new TreeSet<String>();
 					for (int i = 1; i < content.length; i++)
-						termsSet.add(content[i]);
+						if (!termsSet.contains("<") && !termsSet.contains(">"))
+							termsSet.add(content[i]);
 					candidateTerms.put(content[0], termsSet);					
 				}
 			} catch (IOException e) {
@@ -100,24 +103,24 @@ public class Top8 {
 	public Map<String,Set<String>> getTop8Terms()
 	{
 		termsMap();
-		Map<String,Set<String>> top8 = new TreeMap<String,Set<String>>();
-		for (String article : candidateTerms.keySet()){
-			Set<Top8Entity> set = countScore(article);
-			Set<String> terms = new TreeSet<String>();
-
-			
-			int count = 0;
-			for (Top8Entity te : set)
-			{
-				++count;
-				if (count > 8)break;
-				terms.add(te.term);
-			}		
-			top8.put(article, terms);		
-		}
-		
-		return top8;
-//		return candidateTerms;
+//		Map<String,Set<String>> top8 = new TreeMap<String,Set<String>>();
+//		for (String article : candidateTerms.keySet()){
+//			Set<Top8Entity> set = countScore(article);
+//			Set<String> terms = new TreeSet<String>();
+//
+//			
+//			int count = 0;
+//			for (Top8Entity te : set)
+//			{
+//				++count;
+//				if (count > 8)break;
+//				terms.add(te.term);
+//			}		
+//			top8.put(article, terms);		
+//		}
+//		
+//		return top8;
+		return candidateTerms;
 	}
 	
 	//返回article中关键词的得分
@@ -131,6 +134,7 @@ public class Top8 {
 		Set<Top8Entity> termScore = new TreeSet<Top8Entity>();
 
 		termsSet = candidateTerms.get(articleName);
+		if (termsSet.isEmpty())return termScore;
 		int i = 0;
 		String[] terms = new String[termsSet.size()];
 		for (String s : termsSet) {
@@ -148,12 +152,20 @@ public class Top8 {
 				if (k != j) {
 					try {
 						relateSum += relatedness.relatedness(terms[j], terms[k]);
-					} catch (IOException e) {
+					} catch (IOException | ParseException e) {
 						e.printStackTrace();
 					}
 				}
 			}
-			score = (linkability.get(terms[j]) + (relateSum / (terms.length-1))) / 2;
+			if (terms[j] == null)System.out.println("null");
+
+			double a = 0.0;
+			try{
+				a = linkability.get(terms[j]);
+			}catch(NullPointerException nul){
+			}
+			double b = relateSum / (terms.length-1);
+			score = (a+b) / 2;
 			termScore.add(new Top8Entity(terms[j],score));
 		}
 

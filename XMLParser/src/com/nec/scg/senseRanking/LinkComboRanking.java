@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -50,7 +52,7 @@ public class LinkComboRanking {
 		
 		evaluate();
 		
-//		writeArticlesTofile();
+		writeArticlesTofile();
 		
 	}
 	
@@ -66,7 +68,7 @@ public class LinkComboRanking {
 		for (String query : candidates.keySet()){
 			
 			double maxScore = 0.0;
-			ArticleAttributes target = null;
+			ArticleAttributes target = null;			
 			for (ArticleAttributes art : candidates.get(query)){
 				if (art.getLink_combo() > maxScore){
 					maxScore = art.getLink_combo();
@@ -85,7 +87,11 @@ public class LinkComboRanking {
 	private void writeArticlesTofile(){
 		for (String query : candidates.keySet()) {
 			StringBuilder sb = new StringBuilder();
-			for (ArticleAttributes e : candidates.get(query))
+			Set<ArticleAttributes> article = candidates.get(query);
+			Set<ArticleAttributes> tmp_article = new TreeSet<ArticleAttributes>();
+			for (ArticleAttributes art : article)
+				tmp_article.add(art);
+			for (ArticleAttributes e : tmp_article)
 				sb.append(e);
 			Utility.writeToFile("D:\\TAC_RESULT\\linkComboRanking\\"+query+".txt", sb.toString());
 		}
@@ -162,7 +168,10 @@ public class LinkComboRanking {
 						double ctx_sim = 0.0;
 						if (!contents[1].equals("NaN"))
 							ctx_sim = Double.parseDouble(contents[1]);
-
+						articleAttr.setCtx_wt(Double.parseDouble(contents[2]));
+						articleAttr.setCtx_ct(Integer.parseInt(contents[3]));
+						articleAttr.setSubstr_test(Boolean.parseBoolean(contents[4]));
+						articleAttr.setEditDistance_test(Boolean.parseBoolean(contents[5]));
 
 						articleAttr.setCtx_sim(ctx_sim);
 						result.add(articleAttr);
