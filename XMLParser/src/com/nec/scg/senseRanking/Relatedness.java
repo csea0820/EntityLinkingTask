@@ -22,6 +22,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -52,7 +53,8 @@ public class Relatedness {
 		int res = 0;
 		try{
 			query = queryParser.parse(searchString);
-			ScoreDoc[] hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs;
+			
+			ScoreDoc[] hits = isearcher.search(query, 1000000).scoreDocs;
 			if (useCache)cache.put(searchString, hits.length);
 			res = hits.length;
 		}catch(Exception e){
@@ -100,7 +102,7 @@ public class Relatedness {
 	
 	public double relatedness(String entityQuery,String term) throws IOException, ParseException
 	{
-		return SearchResultCount("\""+entityQuery+"\"" + "AND\"" + term + "\"",false)*1.0/(SearchResultCount("\""+entityQuery+"\"",true)+SearchResultCount("\""+term+"\"",true));
+		return SearchResultCount("\""+entityQuery+"\"" + "AND\"" + term + "\"",true)*1.0/(SearchResultCount("\""+entityQuery+"\"",true)+SearchResultCount("\""+term+"\"",true));
 		
 		
 //		PhraseQuery q1 = formPhraseQuery(entityQuery);
@@ -198,8 +200,8 @@ public class Relatedness {
 			
 			Timer timer = new Timer();
 			timer.start();
-
-			System.out.println(r.relatedness("Worcester, New York".toLowerCase(),"GNIS".toLowerCase()));
+			for(int i = 0; i < 1000; i++)
+				System.out.println(i+","+r.relatedness("Worcester, New York".toLowerCase(),"GNIS".toLowerCase()));
 			
 			timer.end();
 			timer.timeElapse("relatedness");
