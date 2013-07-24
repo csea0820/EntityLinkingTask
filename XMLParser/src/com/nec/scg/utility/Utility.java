@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -103,5 +105,55 @@ public class Utility {
 			}
 		}
 		return keywords;
+	}
+	
+	public static void saveCache(Map<String,Set<String>> cache,String cache_file){
+		StringBuilder sb = new StringBuilder();
+		
+		for (String key : cache.keySet()) {
+			sb.append(key);
+			for (String value : cache.get(key))
+				sb.append(value).append("\t");
+			sb.append("\n");
+		}
+
+		Utility.writeToFile(cache_file, sb.toString());
+	}
+	
+	public static Map<String,Set<String>> readCache(String cache_file){
+		File file = new File(cache_file);
+		Map<String,Set<String>> cache = new TreeMap<String,Set<String>>();
+		
+		if (file.exists()) {
+			BufferedReader br = null;
+			FileReader fr = null;
+			String str;
+
+			try {
+				fr = new FileReader(file);
+				br = new BufferedReader(fr);
+
+				str = br.readLine();
+
+				while (str != null) {
+					if (!str.equals("")) {
+						Set<String> value = new TreeSet<String>();
+						String[] contents = str.split("\t");
+						for (int i = 1; i < contents.length; i++)
+							value.add(contents[i]);
+						cache.put(contents[1], value);
+						
+					}
+					str = br.readLine();
+
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return cache;
 	}
 }

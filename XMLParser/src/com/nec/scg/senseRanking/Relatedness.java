@@ -5,13 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -22,7 +20,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -43,6 +40,20 @@ public class Relatedness {
 	String defaultField = "fieldname";
 	Analyzer analyzer = null;
 	QueryParser queryParser = null;
+	
+	private static Relatedness instance = null;
+	
+	private Relatedness(){
+		
+	}
+	
+	public static Relatedness getInstance(){
+		if (instance == null){
+			instance = new Relatedness();
+			instance.open();
+		}
+		return instance;
+	}
 	
 	private int SearchResultCount(String searchString,boolean useCache){
 		
@@ -93,10 +104,6 @@ public class Relatedness {
 		query.setSlop(0);
 		System.out.println(query.toString());
 		return query;
-	}
-
-	public Relatedness() {
-		open();
 	}
 	
 	

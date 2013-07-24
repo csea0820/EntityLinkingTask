@@ -20,7 +20,6 @@ import com.nec.scg.utility.Utility;
 
 public class CTX_SIM {
 
-	Relatedness relatedness = new Relatedness();
 	Map<String, Set<ArticleAttributes>> candidates = new TreeMap<String, Set<ArticleAttributes>>();
 //	Map<String, Set<ArticleAttributes>> cxt_sim_score = new TreeMap<String, Set<ArticleAttributes>>();
 
@@ -62,7 +61,6 @@ public class CTX_SIM {
 		Top8 top8 = new Top8();
 		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
 
-		top8.close();
 		int index = 1;
 		for (String query : candidates.keySet()) {
 
@@ -70,8 +68,8 @@ public class CTX_SIM {
 			// System.out.println(candidates.get(query));
 			for (ArticleAttributes article : candidates.get(query)) {
 				double ctx_sim = 0;
-				Set<String> topTerms = top8Terms.get(article.getName());
-
+//				Set<String> topTerms = top8.getTopTerms(article.getName().toLowerCase());
+				Set<String> topTerms = top8Terms.get(article.getName().toLowerCase());
 				if (topTerms != null) {
 					// System.out.println(article);
 					// System.out.println(topTerms);
@@ -81,7 +79,7 @@ public class CTX_SIM {
 							if (topTerm.contains("<") || topTerm.contains(">")
 									|| topTerm.length() > 20 || size > 8)
 								continue;
-							ctx_sim += relatedness.relatedness(query, topTerm);
+							ctx_sim += Relatedness.getInstance().relatedness(query, topTerm);
 							size++;
 						} catch (ParseException e) {
 							e.printStackTrace();
@@ -98,7 +96,8 @@ public class CTX_SIM {
 		}
 
 		writeToFile();
-		relatedness.close();
+		Relatedness.getInstance().close();
+		top8.close();
 	}
 
 	private void writeToFile() {
