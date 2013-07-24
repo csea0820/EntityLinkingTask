@@ -20,9 +20,10 @@ import com.nec.scg.utility.Utility;
 
 public class CTX_SIM {
 
-	Map<String, Set<ArticleAttributes>> candidates = new TreeMap<String, Set<ArticleAttributes>>();
+	Map<Query, Set<ArticleAttributes>> candidates = new TreeMap<Query, Set<ArticleAttributes>>();
 //	Map<String, Set<ArticleAttributes>> cxt_sim_score = new TreeMap<String, Set<ArticleAttributes>>();
 
+	
 	class Entity implements Comparable<Entity> {
 		String articleName;
 		double CTX_SIM;
@@ -62,7 +63,7 @@ public class CTX_SIM {
 		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
 
 		int index = 1;
-		for (String query : candidates.keySet()) {
+		for (Query query : candidates.keySet()) {
 
 			System.out.println("query " + index++);
 			// System.out.println(candidates.get(query));
@@ -79,7 +80,7 @@ public class CTX_SIM {
 							if (topTerm.contains("<") || topTerm.contains(">")
 									|| topTerm.length() > 20 || size > 8)
 								continue;
-							ctx_sim += Relatedness.getInstance().relatedness(query, topTerm);
+							ctx_sim += Relatedness.getInstance().relatedness(query.query, topTerm);
 							size++;
 						} catch (ParseException e) {
 							e.printStackTrace();
@@ -102,12 +103,12 @@ public class CTX_SIM {
 
 	private void writeToFile() {
 
-		for (String query : candidates.keySet()) {
+		for (Query query : candidates.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			for (ArticleAttributes e : candidates.get(query))
 				sb.append(e.name).append("\t").append(e.ctx_sim).append("\t").append(e.ctx_wt).
 				append("\t").append(e.ctx_ct).append("\t").append(e.substr_test).append("\t").append(e.editDistance_test).append("\n");
-			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\" + query + ".txt",
+			Utility.writeToFile("D:\\TAC_RESULT\\cxt_sim\\" + query.id + "_" + query.query + ".txt",
 					sb.toString());
 		}
 
@@ -121,11 +122,15 @@ public class CTX_SIM {
 			File[] files = dir.listFiles();
 			for (File file : files) {
 
-				String query = file.getName().split("_")[1];
+				String[] queryInfo = file.getName().split("_");
+				String query = queryInfo[1];
+				System.out.println(queryInfo[3]);
+				System.out.println(queryInfo[3].substring(0, queryInfo[3].length()-4));
+				int id = Integer.parseInt(queryInfo[3].substring(0, queryInfo[3].length()-4));
 				Set<ArticleAttributes> candidate = null;
 
-				if (candidates.containsKey(query))
-					continue;
+//				if (candidates.containsKey(query))
+//					continue;
 
 				BufferedReader br = null;
 				FileReader fr = null;
@@ -139,10 +144,11 @@ public class CTX_SIM {
 					candidate = new TreeSet<ArticleAttributes>();
 					while (str != null) {
 						String[] contents = str.split("\t");
-						candidate.add(new ArticleAttributes(contents[0], Boolean.parseBoolean(contents[2]), Boolean.parseBoolean(contents[1])));
+						if (contents.length == 3)
+							candidate.add(new ArticleAttributes(contents[0], Boolean.parseBoolean(contents[2]), Boolean.parseBoolean(contents[1])));
 						str = br.readLine();
 					}
-					candidates.put(query, candidate);
+					candidates.put(new Query(query,id), candidate);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

@@ -36,9 +36,10 @@ public class TrainingSetGen {
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			for (File file : files) {
-				String query = file.getName().substring(0,
-						file.getName().length() - 4);
-				String expectedResult = elr.getExpectedResult(query);
+				String [] queryInfo = file.getName().substring(0,
+						file.getName().length() - 4).split("_");
+				String query = queryInfo[1];
+				String expectedResult = elr.getExpectedResult(Integer.parseInt(queryInfo[0]));
 				
 				List<ArticleAttributes> topNSenses = getTopNSenses(file);
 				for (ArticleAttributes art : topNSenses)

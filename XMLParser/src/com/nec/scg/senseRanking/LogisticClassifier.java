@@ -83,7 +83,10 @@ public class LogisticClassifier {
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			for (File file : files) {
-				String query = file.getName().substring(0,file.getName().length()-4);
+				String[] queryInfo = file.getName().substring(0,file.getName().length()-4).split("_");
+				String query = queryInfo[1];
+				int id = Integer.parseInt(queryInfo[0]);
+				
 				List<ArticleAttributes> senses = ArticleAttributes.readSenses(file);
 				if (senses.size() == 0){
 					em.returnedRelevantPagesPlus();
@@ -92,11 +95,11 @@ public class LogisticClassifier {
 				double [] probs = lc.distributionForInstance(senses.get(0));
 				if (lc.classifyInstance(senses.get(0)) == 0.0){
 					if (probs[0] > 0.9){
-						if (elr.getExpectedResult(query).equals(query))
+						if (elr.getExpectedResult(id).equals(query))
 							em.returnedRelevantPagesPlus();
 					}
 				}else{
-					if (elr.getExpectedResult(query).equals("NIL"))
+					if (elr.getExpectedResult(id).equals("NIL"))
 						em.returnedRelevantPagesPlus();
 				}
 			}

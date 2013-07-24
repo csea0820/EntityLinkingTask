@@ -22,70 +22,75 @@ import com.nec.scg.utility.Utility;
 
 public class LinkComboRanking {
 
-	Map<String, Set<ArticleAttributes>> candidates = new TreeMap<String, Set<ArticleAttributes>>();
+	Map<Query, Set<ArticleAttributes>> candidates = new TreeMap<Query, Set<ArticleAttributes>>();
 	Map<String, Set<ArticleAttributes>> link_prob = new TreeMap<String, Set<ArticleAttributes>>();
 
-	public void linkComboRanking()
-	{
+	public void linkComboRanking() {
 		readCandidatesCtxSim("D:\\TAC_RESULT\\cxt_sim");
 		readCandidatesLinkProb("D:\\TAC_RESULT\\link_prob");
-		
-		for (String source : link_prob.keySet()){
-			Set<ArticleAttributes> articles = candidates.get(source);
-			if (articles != null)
-			{
-				Set<ArticleAttributes> set = link_prob.get(source);
-				
-				for (ArticleAttributes art : articles)
-				{
-					for (ArticleAttributes aa : set)
-					{
-						if (art.name.equals(aa.name)){
-							art.setLink_prob(aa.getLink_combo());
-							break;
+
+		for (String source : link_prob.keySet()) {
+
+			for (Query query : candidates.keySet()) {
+
+				if (query.query.equals(source)) {
+					Set<ArticleAttributes> articles = candidates.get(query);
+
+					if (articles != null) {
+						Set<ArticleAttributes> set = link_prob.get(source);
+
+						for (ArticleAttributes art : articles) {
+							for (ArticleAttributes aa : set) {
+								if (art.name.equals(aa.name)) {
+									art.setLink_prob(aa.getLink_combo());
+									break;
+								}
+							}
+							art.calLink_combo();
 						}
 					}
-					art.calLink_combo();
 				}
 			}
 		}
-		
+
 		evaluate();
-		
+
 		writeArticlesTofile();
-		
+
 	}
-	
-	private void evaluate(){
+
+	private void evaluate() {
 		ExpectedLinkResult elr = new ExpectedLinkResult();
 		elr.readLinkResult("linkresult");
 
 		EvaluationMetric em = new EvaluationMetric();
-		
+
 		int querySize = elr.getQueries().size();
 		em.allRelevantPagesPlus(querySize);
-		
-		for (String query : candidates.keySet()){
-			
+
+		for (Query query : candidates.keySet()) {
+
 			double maxScore = 0.0;
-			ArticleAttributes target = null;			
-			for (ArticleAttributes art : candidates.get(query)){
-				if (art.getLink_combo() > maxScore){
+			ArticleAttributes target = null;
+			for (ArticleAttributes art : candidates.get(query)) {
+				if (art.getLink_combo() > maxScore) {
 					maxScore = art.getLink_combo();
 					target = art;
 				}
 			}
-			if ((maxScore == 0.0 && elr.getExpectedResult(query).equals("NIL"))
-					||( target != null && target.name.equals(elr.getExpectedResult(query)))){
+			if ((maxScore == 0.0 && elr.getExpectedResult(query.id).equals("NIL"))
+					|| (target != null && target.name.equals(elr
+							.getExpectedResult(query.id)))) {
 				em.returnedRelevantPagesPlus();
 			}
 		}
-		System.out.println("Precision = " + em.getM_returned_relevant_pages()*1.0/em.getM_all_relevant_pages());
-		
+		System.out.println("Precision = " + em.getM_returned_relevant_pages()
+				* 1.0 / em.getM_all_relevant_pages());
+
 	}
-	
-	private void writeArticlesTofile(){
-		for (String query : candidates.keySet()) {
+
+	private void writeArticlesTofile() {
+		for (Query query : candidates.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			Set<ArticleAttributes> article = candidates.get(query);
 			Set<ArticleAttributes> tmp_article = new TreeSet<ArticleAttributes>();
@@ -93,16 +98,18 @@ public class LinkComboRanking {
 				tmp_article.add(art);
 			for (ArticleAttributes e : tmp_article)
 				sb.append(e);
-			Utility.writeToFile("D:\\TAC_RESULT\\linkComboRanking\\"+query+".txt", sb.toString());
+			Utility.writeToFile("D:\\TAC_RESULT\\linkComboRanking\\" + query
+					+ ".txt", sb.toString());
 		}
 	}
-	
+
 	private void readCandidatesLinkProb(String directory) {
 		File dir = new File(directory);
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			for (File file : files) {
-				String source = file.getName().substring(0,file.getName().length()-4);
+				String source = file.getName().substring(0,
+						file.getName().length() - 4);
 
 				Set<ArticleAttributes> result = new TreeSet<ArticleAttributes>();
 				BufferedReader br = null;
@@ -148,7 +155,10 @@ public class LinkComboRanking {
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			for (File file : files) {
-				String source = file.getName().substring(0,file.getName().length()-4);
+				String[] queryInfo = file.getName()
+						.substring(0, file.getName().length() - 4).split("_");
+				String query = queryInfo[1];
+				int id = Integer.parseInt(queryInfo[0]);
 
 				Set<ArticleAttributes> result = new TreeSet<ArticleAttributes>();
 				BufferedReader br = null;
@@ -170,15 +180,17 @@ public class LinkComboRanking {
 							ctx_sim = Double.parseDouble(contents[1]);
 						articleAttr.setCtx_wt(Double.parseDouble(contents[2]));
 						articleAttr.setCtx_ct(Integer.parseInt(contents[3]));
-						articleAttr.setSubstr_test(Boolean.parseBoolean(contents[4]));
-						articleAttr.setEditDistance_test(Boolean.parseBoolean(contents[5]));
+						articleAttr.setSubstr_test(Boolean
+								.parseBoolean(contents[4]));
+						articleAttr.setEditDistance_test(Boolean
+								.parseBoolean(contents[5]));
 
 						articleAttr.setCtx_sim(ctx_sim);
 						result.add(articleAttr);
 						str = br.readLine();
 					}
 
-					candidates.put(source, result);
+					candidates.put(new Query(query, id), result);
 
 				} catch (Exception e) {
 					e.printStackTrace();

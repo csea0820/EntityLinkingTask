@@ -24,9 +24,13 @@ public class ExpectedLinkResult {
 	}
 	
 	
-	public String getExpectedResult(String query){
-		int index = queries.indexOf(query);
-		return expectedResult.get(index);
+//	public String getExpectedResult(String query){
+//		int index = queries.indexOf(query);
+//		return expectedResult.get(index);
+//	}
+	
+	public String getExpectedResult(int id){
+		return expectedResult.get(id);
 	}
 	
 	public void readLinkResult(String filePath)
