@@ -50,9 +50,5 @@ public class Query implements Comparable<Query>{
 		this.query = query;
 	}
 	
-	public static List<Query> getQueryInfo(String file){
-		List<Query> ret = new ArrayList<Query>();
-		
-		return ret;
-	}
+	
 }

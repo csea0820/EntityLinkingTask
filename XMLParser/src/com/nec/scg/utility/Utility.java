@@ -102,6 +102,13 @@ public class Utility {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally{
+				try {
+					fr.close();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return keywords;
@@ -152,6 +159,14 @@ public class Utility {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally{
+				
+				try {
+					fr.close();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		

@@ -152,6 +152,13 @@ public class CTX_SIM {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+				}finally{
+					try {
+						fr.close();
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
 			}

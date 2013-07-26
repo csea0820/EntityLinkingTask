@@ -117,6 +117,13 @@ public class Linkability {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally{
+				try {
+					fr.close();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -156,6 +163,13 @@ public class Linkability {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally{
+				try {
+					fr.close();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
