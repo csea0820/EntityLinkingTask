@@ -139,6 +139,7 @@ public class Utility {
 					if (!str.equals("")) {
 						Set<String> value = new TreeSet<String>();
 						String[] contents = str.split("\t");
+						if (contents.length < 2)break;
 						for (int i = 1; i < contents.length; i++)
 							value.add(contents[i]);
 						cache.put(contents[1], value);

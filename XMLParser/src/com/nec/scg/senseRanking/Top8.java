@@ -164,8 +164,12 @@ public class Top8 {
 			for (int k = 0; k < terms.length; k++) {
 				if (k != j) {
 					try {
-						relateSum += Relatedness.getInstance()
-								.relatedness(terms[j], terms[k]);
+						if (j < k)
+							relateSum += Relatedness.getInstance()
+									.relatedness(terms[j], terms[k]);
+						else 
+							relateSum += Relatedness.getInstance()
+							.relatedness(terms[k], terms[j]);
 					} catch (IOException | ParseException e) {
 						e.printStackTrace();
 					}

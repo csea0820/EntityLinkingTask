@@ -60,7 +60,7 @@ public class CTX_SIM {
 		// System.out.println(candidates.get("ABC"));
 
 		Top8 top8 = new Top8();
-		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
+//		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
 
 		int index = 1;
 		for (Query query : candidates.keySet()) {
@@ -69,8 +69,8 @@ public class CTX_SIM {
 			// System.out.println(candidates.get(query));
 			for (ArticleAttributes article : candidates.get(query)) {
 				double ctx_sim = 0;
-//				Set<String> topTerms = top8.getTopTerms(article.getName().toLowerCase());
-				Set<String> topTerms = top8Terms.get(article.getName().toLowerCase());
+				Set<String> topTerms = top8.getTopTerms(article.getName().toLowerCase());
+//				Set<String> topTerms = top8Terms.get(article.getName().toLowerCase());
 				if (topTerms != null) {
 					// System.out.println(article);
 					// System.out.println(topTerms);
@@ -124,8 +124,7 @@ public class CTX_SIM {
 
 				String[] queryInfo = file.getName().split("_");
 				String query = queryInfo[1];
-				System.out.println(queryInfo[3]);
-				System.out.println(queryInfo[3].substring(0, queryInfo[3].length()-4));
+
 				int id = Integer.parseInt(queryInfo[3].substring(0, queryInfo[3].length()-4));
 				Set<ArticleAttributes> candidate = null;
 

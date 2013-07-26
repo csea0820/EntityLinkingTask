@@ -65,7 +65,7 @@ public class Relatedness {
 		try{
 			query = queryParser.parse(searchString);
 			
-			ScoreDoc[] hits = isearcher.search(query, 1000000).scoreDocs;
+			ScoreDoc[] hits = isearcher.search(query, 100000).scoreDocs;
 			if (useCache)cache.put(searchString, hits.length);
 			res = hits.length;
 		}catch(Exception e){
