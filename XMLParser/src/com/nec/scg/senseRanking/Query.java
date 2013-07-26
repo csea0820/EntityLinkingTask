@@ -4,8 +4,9 @@
  */
 package com.nec.scg.senseRanking;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+
+import com.nec.scg.utility.Constant;
 
 
 public class Query implements Comparable<Query>{
@@ -50,5 +51,13 @@ public class Query implements Comparable<Query>{
 		this.query = query;
 	}
 	
+	
+	public File getDocument(){
+		String path = Constant.queryDocDirectory;
+		String[] str = docID.split("[_||\\.]");
+		path += str[0].toLowerCase()+"_"+str[1].toLowerCase()+"\\";
+		path += str[2]+"\\";
+		return new File(path+docID);
+	}
 	
 }

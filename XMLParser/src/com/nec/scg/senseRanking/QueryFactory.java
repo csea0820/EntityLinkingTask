@@ -83,7 +83,7 @@ public class QueryFactory extends DefaultHandler{
 		List<Query> ret = QueryFactory.getQueryInfo(Constant.queryXmlFile);
 		System.out.println(ret.size());
 		for (Query q : ret){
-			System.out.println("id = " + q.id+",name = " + q.query+",docID = " + q.docID);
+			System.out.println("id = " + q.id+",name = " + q.query+",docID = " + q.docID+",path = " + q.getDocument().getAbsolutePath());
 		}
 	}
 
