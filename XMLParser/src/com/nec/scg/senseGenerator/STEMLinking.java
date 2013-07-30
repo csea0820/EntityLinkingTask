@@ -205,8 +205,8 @@ public class STEMLinking extends AbstractLinking {
 
 			candidates = query(elr.getQueries().get(i).toLowerCase());
 			em.allReturnedPagesPlus(candidates.size());
-			if (candidates.contains(elr.getExpectedResult().get(i)))
-				em.returnedRelevantPagesPlus();
+//			if (candidates.contains(elr.getExpectedResult().get(i)))
+//				em.returnedRelevantPagesPlus();
 
 			StringBuilder sb = new StringBuilder();
 			for (ArticleAttributes can : candidates)
