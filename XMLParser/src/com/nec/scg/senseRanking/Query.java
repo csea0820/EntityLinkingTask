@@ -57,7 +57,15 @@ public class Query implements Comparable<Query>{
 		String[] str = docID.split("[_||\\.]");
 		path += str[0].toLowerCase()+"_"+str[1].toLowerCase()+"\\";
 		path += str[2]+"\\";
-		return new File(path+docID);
+		return new File(path+docID+".sgm");
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public String getQuery() {
+		return query;
 	}
 	
 }

@@ -82,9 +82,14 @@ public class QueryFactory extends DefaultHandler{
 	public static void main(String[] args) {
 		List<Query> ret = QueryFactory.getQueryInfo(Constant.queryXmlFile);
 		System.out.println(ret.size());
+		DocumentKeyword documentKW = DocumentKeyword.getinstance();
 		for (Query q : ret){
-			System.out.println("id = " + q.id+",name = " + q.query+",docID = " + q.docID+",path = " + q.getDocument().getAbsolutePath());
+			
+			System.out.println(documentKW.getKeywords(q));
+			
 		}
+		
+		documentKW.saveCaches();
 	}
 
 }
