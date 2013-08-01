@@ -51,10 +51,11 @@ public class Top8 {
 	}
 
 	private void termsMap() {
-		candidateTerms = new TreeMap<String, Set<String>>();
-		Set<String> termsSet = new TreeSet<String>();
+//		candidateTerms = new TreeMap<String, Set<String>>();
+//		Set<String> termsSet = new TreeSet<String>();
 		File articleterms = new File(path + "articleTerms.txt");
-
+		Map<String,Integer> keywords = new TreeMap<String,Integer>();
+		
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(articleterms));
 			String line;
@@ -67,17 +68,30 @@ public class Top8 {
 						continue;
 
 					
-					termsSet = new TreeSet<String>();
+//					termsSet = new TreeSet<String>();
 					for (int i = 1; i < content.length; i++)
-						if (!termsSet.contains("<") && !termsSet.contains(">"))
-							termsSet.add(content[i]);
-					candidateTerms.put(content[0].toLowerCase(), termsSet);
+						if (!content[i].contains("<") && !content[i].contains(">") && !content[i].contains("\"")
+								&& !content[i].contains("''") && !content[i].contains("?") && !content[i].contains("!")
+								&& !content[i].contains("#") && !content[i].contains("$") && !content[i].contains("&")
+								&& !content[i].contains("'") && !content[i].startsWith("(") && !content[i].contains("%")
+								)
+						{
+//							termsSet.add(content[i]);
+							Integer v = keywords.get(content[i].trim());
+							if (v == null) v = 0;
+							keywords.put(content[i].trim(),v+1);
+						}
+//					candidateTerms.put(content[0].toLowerCase(), termsSet);
 				}
 			} catch (IOException e) {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		StringBuilder sb = new StringBuilder();
+		for (String keyword : keywords.keySet())
+			sb.append(keyword).append("\t").append(keywords.get(keyword)).append("\n");
+		Utility.writeToFile("D:\\TAC_RESULT\\keywords.txt", sb.toString());
 	}
 
 	private void termsLinkability() {
@@ -259,7 +273,7 @@ public class Top8 {
 	}
 
 	public static void main(String[] args) {
-//		System.out.print(new Top8().getTop8Terms().get("1233 ABC Newcastle"));
+		new Top8().getTop8Terms();
 	}
 
 }
