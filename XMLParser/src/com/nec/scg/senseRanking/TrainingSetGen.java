@@ -31,7 +31,7 @@ public class TrainingSetGen {
 
 		builder.append(ArticleAttributes.getArffHeader());
 		builder.append("@data\n");
-		
+		int instancesCnt = 0;
 		File dir = new File(instancesDir);
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
@@ -41,6 +41,8 @@ public class TrainingSetGen {
 				String query = queryInfo[1];
 				String expectedResult = elr.getExpectedResult(Integer.parseInt(queryInfo[0]));
 				
+				if (expectedResult.equals("NIL"))continue;
+				
 				List<ArticleAttributes> topNSenses = getTopNSenses(file);
 				for (ArticleAttributes art : topNSenses)
 				{
@@ -48,10 +50,12 @@ public class TrainingSetGen {
 						art.setCorrectSense(true);
 					
 					builder.append(art.toArffFormat());
+					instancesCnt++;
 				}
 			}
 		}
 		
+		System.out.println("Training Set Size : " + instancesCnt);
 		Utility.writeToFile(outputFile, builder.toString());
 	}
 	
