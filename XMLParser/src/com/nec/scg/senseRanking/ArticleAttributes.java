@@ -105,6 +105,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		articleAttr.setCtx_wt(Double.parseDouble(contents[5]));
 		articleAttr.setCtx_ct(Integer.parseInt(contents[6]));
 		articleAttr.setLink_prob(Double.parseDouble(contents[7]));
+		articleAttr.calLink_combo();
 		
 		
 		return articleAttr;
@@ -143,8 +144,8 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	public String toArffFormat(){
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(link_prob).append(",'").append(isEditDistance_test()?1:0).append("','").append(substr_test?1:0).
-		append("',").append(ctx_sim).append(",").append(ctx_wt).append(",").append(ctx_ct).append(",").append(link_combo)
+		sb.append(link_prob).append(",").append(isEditDistance_test()?1:0).append(",").append(substr_test?1:0).
+		append(",").append(ctx_sim).append(",").append(ctx_wt).append(",").append(ctx_ct).append(",").append(link_combo)
 		.append(",'").append(correctSense).append("'\n");
 		
 		return sb.toString();
