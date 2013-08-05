@@ -42,7 +42,7 @@ public class LinkComboRanking {
 						for (ArticleAttributes art : articles) {
 							for (ArticleAttributes aa : set) {
 								if (art.name.equals(aa.name)) {
-									art.setLink_prob(aa.getLink_combo());
+									art.setLink_prob(aa.getLink_prob());
 									break;
 								}
 							}
@@ -68,6 +68,7 @@ public class LinkComboRanking {
 		int querySize = elr.getQueries().size();
 		em.allRelevantPagesPlus(querySize);
 
+		int cnt = 0;
 		for (Query query : candidates.keySet()) {
 
 			double maxScore = 0.0;
@@ -82,10 +83,13 @@ public class LinkComboRanking {
 					|| (target != null && target.name.equals(elr
 							.getExpectedResult(query.id)))) {
 				em.returnedRelevantPagesPlus();
+				if ((target != null && target.name.equals(elr
+						.getExpectedResult(query.id))))cnt++;
 			}
 		}
 		System.out.println("Precision = " + em.getM_returned_relevant_pages()
 				* 1.0 / em.getM_all_relevant_pages());
+		System.out.println("Match Count = " + cnt);
 
 	}
 
