@@ -35,7 +35,19 @@ public class DocumentKeyword {
 	Set<String> keywords = null;
 	Map<String,Integer> keywords_prefix = null;
 
+	private static String CACHE_FILE = "D:\\TAC_RESULT\\documentKeywords.txt";
+	
 	private DocumentKeyword() {
+		caches = Utility.readCache(CACHE_FILE);
+	}
+
+	public static DocumentKeyword getinstance() {
+		if (instance == null)
+			instance = new DocumentKeyword();
+		return instance;
+	}
+
+	public void init(){
 		keywords = Utility.getKeywords("D:\\TAC_RESULT\\keywords.txt"); 
 		
 		keywords_prefix = new TreeMap<String,Integer>();
@@ -54,17 +66,14 @@ public class DocumentKeyword {
 			}
 		}
 	}
-
-	public static DocumentKeyword getinstance() {
-		if (instance == null)
-			instance = new DocumentKeyword();
-		return instance;
-	}
-
+	
 	public Set<String> getKeywords(Query query) {
 		String key = query.getId() + "_" + query.getQuery();
+//		System.out.println(key+","+caches.get(key));
 		if (caches.containsKey(key))
 			return caches.get(key);
+		
+		if (keywords_prefix == null)init();
 		
 		Set<String> ret = new TreeSet<String>();
 		
@@ -91,6 +100,7 @@ public class DocumentKeyword {
 			if (matchString != null)
 				ret.add(matchString);
 		}
+//		System.out.println(key+","+ret);
 		caches.put(key, ret);
 		return ret;
 	}
