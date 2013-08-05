@@ -72,7 +72,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	
 	public void calLink_combo()
 	{
-		link_combo = 0.5*ctx_sim+0.7*link_prob;
+		link_combo = 0.5*ctx_sim+2*link_prob;
 	}
 	
 	public double getLink_combo(){
