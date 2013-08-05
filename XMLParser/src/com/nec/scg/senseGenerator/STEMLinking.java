@@ -221,7 +221,7 @@ public class STEMLinking extends AbstractLinking {
 				sb = new StringBuilder();
 				for (ArticleAttributes can : candidates)
 					sb.append(can.getName()).append("\t")
-							.append(articles.get(can).getLink_prob())
+							.append(articles.get(can.getName()).getLink_prob())
 							.append("\n");
 
 				Utility.writeToFile("D:\\TAC_RESULT\\link_prob\\"
