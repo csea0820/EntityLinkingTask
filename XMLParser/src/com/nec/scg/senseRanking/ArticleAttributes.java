@@ -115,14 +115,14 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("@relation SenseAttribute\n");
-		sb.append("@attribute 'LINK_PROB' real\n");
-		sb.append("@attribute 'EDITDIST_TEST' real\n");
-		sb.append("@attribute 'SUBSTR_TEST' real\n");
-		sb.append("@attribute 'CTX_SIM' real\n");
-		sb.append("@attribute 'CTX_WT' real\n");
-		sb.append("@attribute 'CTX_CT' real\n");
-		sb.append("@attribute 'LINK_COMBO' real\n");
-		sb.append("@attribute 'CORRECT' {'true','false'}\n");
+		sb.append("@attribute LINK_PROB real\n");
+		sb.append("@attribute EDITDIST_TEST real\n");
+		sb.append("@attribute SUBSTR_TEST real\n");
+		sb.append("@attribute CTX_SIM real\n");
+		sb.append("@attribute CTX_WT real\n");
+		sb.append("@attribute CTX_CT real\n");
+		sb.append("@attribute LINK_COMBO real\n");
+		sb.append("@attribute CORRECT {true,false}\n");
 	
 		return sb.toString();
 	}
@@ -146,7 +146,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		
 		sb.append(link_prob).append(",").append(isEditDistance_test()?1:0).append(",").append(substr_test?1:0).
 		append(",").append(ctx_sim).append(",").append(ctx_wt).append(",").append(ctx_ct).append(",").append(link_combo)
-		.append(",'").append(correctSense).append("'\n");
+		.append(",").append(correctSense).append("\n");
 		
 		return sb.toString();
 	}
