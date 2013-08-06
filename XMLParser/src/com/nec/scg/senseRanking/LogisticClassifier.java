@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 
+import weka.classifiers.AbstractClassifier;
 import weka.classifiers.functions.Logistic;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -18,16 +20,17 @@ import com.nec.scg.senseGenerator.ExpectedLinkResult;
 
 public class LogisticClassifier {
 
-	Logistic logistic = new Logistic();
 	Instances data;
-
+	AbstractClassifier classifier = new Logistic();
+	
 	public void train(String arffFile) {
 
 		try {
 			data = new Instances(new BufferedReader(new FileReader(arffFile)));
 			data.setClassIndex(data.numAttributes() - 1);
-			logistic.buildClassifier(data);
+//			logistic.buildClassifier(data);
 			
+			classifier.buildClassifier(data);
 //			System.out.println(logistic.classifyInstance(data.firstInstance()));
 //			for (double d : logistic.distributionForInstance(data.firstInstance()))
 //				System.out.println(d);
@@ -42,7 +45,7 @@ public class LogisticClassifier {
 		instance.setDataset(data);
 		double [] ret = null;
 		try {
-			ret = logistic.distributionForInstance(instance);
+			ret = classifier.distributionForInstance(instance);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,7 +59,7 @@ public class LogisticClassifier {
 		instance.setDataset(data);
 		double ret = 0.0;
 		try {
-			ret = logistic.classifyInstance(instance);
+			ret = classifier.classifyInstance(instance);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -68,7 +71,9 @@ public class LogisticClassifier {
 	 */
 	public static void main(String[] args) {
 		LogisticClassifier lc = new LogisticClassifier();
-		lc.train("D:\\TAC_RESULT\\training.arff");
+		TrainingSetGen set = new TrainingSetGen();
+		set.trainingSetGenerate("D:\\TAC_RESULT\\linkComboRanking", "linkresult");
+		lc.train(set.getOutputFile());
 		
 		
 		ExpectedLinkResult elr = new ExpectedLinkResult();
@@ -92,11 +97,25 @@ public class LogisticClassifier {
 					em.returnedRelevantPagesPlus();
 					continue;
 				}
+				
+				
+				
 				double [] probs = lc.distributionForInstance(senses.get(0));
+				
+//				if (senses.get(0).getName().equals(elr.getExpectedResult(id))){
+//					System.out.println("MATCH");
+//					System.out.println(probs[0]+","+probs[1]);
+//					System.out.println(senses.get(0));
+//				}
 				if (lc.classifyInstance(senses.get(0)) == 0.0){
 					if (probs[0] > 0.9){
+						System.out.println("HIT:"+probs[0]);
+						System.out.println(query+","+id+","+elr.getExpectedResult(id));
 						if (elr.getExpectedResult(id).equals(query))
+						{
+							System.out.println("HIT2");
 							em.returnedRelevantPagesPlus();
+						}
 					}
 				}else{
 					if (elr.getExpectedResult(id).equals("NIL"))
