@@ -4,10 +4,15 @@
  */
 package com.nec.scg.senseGenerator;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,10 +34,12 @@ public class KnowledgeBase {
 
 	Set<String> articleNames = null;
 	private final String KB_DIR = "D:\\KBPÊý¾Ý¼¯\\TAC2009\\TAC_2009_KBP_Evaluation_Reference_Knowledge_Base\\data";
+	private final String CACHE_FILE = "D:\\TAC_RESULT\\AllKbArticleNames";
 	
 	public KnowledgeBase(){
 		articleNames = new TreeSet<String>();
 	}
+	
 	
 	
 	private Set<String> getArticleNames(File file){
@@ -64,6 +71,12 @@ public class KnowledgeBase {
 	}
 	
 	public Set<String> getKbArticleNames(){
+		
+		File cache = new File(CACHE_FILE);
+		if (cache.exists()){
+			return getCaches(cache);
+		}
+		
 		File dir = new File(KB_DIR);
 		if (dir.isDirectory()){
 			File[] files = dir.listFiles();
@@ -71,9 +84,42 @@ public class KnowledgeBase {
 				articleNames.addAll(getArticleNames(file));
 			
 		}
-//		saveAllKbArticleNames();
+		saveAllKbArticleNames();
 		System.out.println("total article = " + articleNames.size());
 		return articleNames;
+	}
+	
+	private Set<String> getCaches(File file){
+		Set<String> ret = new TreeSet<String>();
+		
+			BufferedReader br = null;
+			FileReader fr = null;
+			String str;
+
+			try {
+				fr = new FileReader(file);
+				br = new BufferedReader(fr);
+
+				str = br.readLine();
+
+				while (str != null) {
+					ret.add(str.trim());
+					str = br.readLine();
+
+				}
+			}catch (IOException e) {
+				e.printStackTrace();
+			}finally{
+				
+				try {
+					fr.close();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		
+		return ret;
 	}
 	
 	private void saveAllKbArticleNames(){
@@ -81,7 +127,7 @@ public class KnowledgeBase {
 		for (String name : articleNames)
 			sb.append(name).append("\n");
 		
-		Utility.writeToFile("D:\\TAC_RESULT\\AllKbArticleNames", sb.toString());
+		Utility.writeToFile(CACHE_FILE, sb.toString());
 	}
 	
 	/**
