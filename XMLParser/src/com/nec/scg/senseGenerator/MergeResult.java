@@ -21,11 +21,15 @@ public class MergeResult {
 
 	EvaluationMetric em = new EvaluationMetric();
 	
+	Set<String> kbNames = null;
 	
 	public void mergeResult(String resultDir)
 	{
 		File dir = new File(resultDir+"\\NAR\\");
 
+		KnowledgeBase kb = new KnowledgeBase();
+		kbNames = kb.getKbArticleNames();
+		
 		if (dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			em.setM_all_relevant_pages(files.length); //all_relevant_pages=query总条数3904
@@ -140,10 +144,15 @@ public class MergeResult {
 		
 		int match = 0;
 		
-		em.allReturnedPagesPlus(s1.size());
+		
+		
+		
 		String[] expectedResult =  file.getName().split("_");
+		if (!"NIL".equals(expectedResult[2]) && !kbNames.contains(expectedResult[2])){
+			System.out.println(expectedResult[1]+","+expectedResult[2]);
+		}
 		//如果结果中包含query name的或者结果为nil的都算是正确或匹配，则returnedRelevantPages+1
-		if (s1.contains(new ArticleAttributes(expectedResult[2])) || "NIL".equals(expectedResult[2]))
+		if ((s1.contains(new ArticleAttributes(expectedResult[2])) && kbNames.contains(expectedResult[2]))  || "NIL".equals(expectedResult[2]))
 		{
 			em.returnedRelevantPagesPlus();match = 1;
 			
@@ -151,8 +160,11 @@ public class MergeResult {
 			
 		StringBuilder sb = new StringBuilder();
 		for (ArticleAttributes can: s1)
-			sb.append(can.getName()).append("\t").append(can.isSubstr_test()).append("\t").append(can.isEditDistance_test()).append("\n");
-		
+			if (kbNames.contains(can.getName()))
+			{
+				em.allReturnedPagesPlus(1);
+				sb.append(can.getName()).append("\t").append(can.isSubstr_test()).append("\t").append(can.isEditDistance_test()).append("\n");
+			}
 		Utility.writeToFile("D:\\TAC_RESULT\\TOTAL\\"+match+"_"+expectedResult[1]+"_"+expectedResult[2]+"_"+expectedResult[3].replace(".txt", "")+".txt", sb.toString());
 		
 	}
