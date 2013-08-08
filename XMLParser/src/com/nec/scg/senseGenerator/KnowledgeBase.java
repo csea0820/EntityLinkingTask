@@ -6,6 +6,7 @@ package com.nec.scg.senseGenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,7 +28,7 @@ import com.nec.scg.utility.Utility;
 public class KnowledgeBase {
 
 	Set<String> articleNames = null;
-	private final String KB_DIR = "D:\\KBP数据集\\TAC2009\\LDC2009E58A(knowledge base)\\TAC_2009_KBP_Evaluation_Reference_Knowledge_Base\\data";
+	private final String KB_DIR = "D:\\KBP数据集\\TAC2009\\TAC_2009_KBP_Evaluation_Reference_Knowledge_Base\\data";
 	
 	public KnowledgeBase(){
 		articleNames = new TreeSet<String>();
@@ -52,7 +53,7 @@ public class KnowledgeBase {
 			Object result = expr.evaluate(doc, XPathConstants.NODESET);
 			NodeList nodes = (NodeList) result;
 			for (int i = 0; i < nodes.getLength(); i++) {
-				ret.add(nodes.item(i).getAttributes().getNamedItem("wiki_title").getNodeValue());
+				ret.add(nodes.item(i).getAttributes().getNamedItem("name").getNodeValue());
 			}
 		} catch (ParserConfigurationException | XPathExpressionException
 				| SAXException | IOException e) {
@@ -70,6 +71,8 @@ public class KnowledgeBase {
 				articleNames.addAll(getArticleNames(file));
 			
 		}
+//		saveAllKbArticleNames();
+		System.out.println("total article = " + articleNames.size());
 		return articleNames;
 	}
 	
@@ -77,6 +80,7 @@ public class KnowledgeBase {
 		StringBuilder sb = new StringBuilder();
 		for (String name : articleNames)
 			sb.append(name).append("\n");
+		
 		Utility.writeToFile("D:\\TAC_RESULT\\AllKbArticleNames", sb.toString());
 	}
 	
