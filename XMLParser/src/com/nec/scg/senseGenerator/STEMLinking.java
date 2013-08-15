@@ -169,7 +169,7 @@ public class STEMLinking extends AbstractLinking {
 
 	protected void addToSETM(String source, String target) {
 		Article art = getArticle(target);
-		art.addSETM(source);
+		art.addSETM(source.toLowerCase());
 		art.addSource(source);
 
 	}
@@ -205,8 +205,12 @@ public class STEMLinking extends AbstractLinking {
 
 			candidates = query(elr.getQueries().get(i).toLowerCase());
 			em.allReturnedPagesPlus(candidates.size());
-//			if (candidates.contains(elr.getExpectedResult().get(i)))
-//				em.returnedRelevantPagesPlus();
+			for (ArticleAttributes art : candidates)
+				if (art.getName().equals(elr.getExpectedResult().get(i)))
+				{
+					em.returnedRelevantPagesPlus();
+					break;
+				}
 
 			StringBuilder sb = new StringBuilder();
 			for (ArticleAttributes can : candidates)
