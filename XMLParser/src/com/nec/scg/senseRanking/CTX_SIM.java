@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,6 +17,7 @@ import java.util.TreeSet;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
+import com.nec.scg.utility.Constant;
 import com.nec.scg.utility.Utility;
 
 public class CTX_SIM {
@@ -63,25 +65,33 @@ public class CTX_SIM {
 //		Map<String, Set<String>> top8Terms = top8.getTop8Terms();
 
 		int index = 1;
-		for (Query query : candidates.keySet()) {
+		for (Query query : QueryFactory.getQueryInfo(Constant.queryXmlFile)) {
 
 			System.out.println("query " + index++);
+			Set<String> keyword_query = getTopTermFromQuery(query);
+//			Set<String> keyword_query = top8.getQueryDocTopTerms(query);
+			keyword_query.add(query.getQuery());
 			// System.out.println(candidates.get(query));
 			for (ArticleAttributes article : candidates.get(query)) {
 				double ctx_sim = 0;
 				Set<String> topTerms = top8.getTopTerms(article.getName().toLowerCase());
+				topTerms.add(article.getName());
 //				Set<String> topTerms = top8Terms.get(article.getName().toLowerCase());
 				if (topTerms != null) {
-					// System.out.println(article);
-					// System.out.println(topTerms);
 					int size = 0;
 					for (String topTerm : topTerms) {
 						try {
-							if (topTerm.contains("<") || topTerm.contains(">")
-									|| topTerm.length() > 20 || size > 8)
-								continue;
-							ctx_sim += Relatedness.getInstance().relatedness(query.query, topTerm);
-							size++;
+//							if (topTerm.contains("<") || topTerm.contains(">")
+//									|| topTerm.length() > 20 || size > 8)
+//								continue;
+//							ctx_sim += Relatedness.getInstance().relatedness(query.query, topTerm);
+//							size++;
+							for (String kq : keyword_query)
+							{
+								ctx_sim += Relatedness.getInstance().relatedness(kq, topTerm);
+								size++;
+							}
+							
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
@@ -90,10 +100,8 @@ public class CTX_SIM {
 						article.setCtx_sim(ctx_sim / size);
 					article.setCtx_ct(size);
 					article.setCtx_wt(ctx_sim);
-//					set.add(art);
 				}
 			}
-//			cxt_sim_score.put(query, set);
 		}
 
 		writeToFile();
@@ -112,6 +120,20 @@ public class CTX_SIM {
 					sb.toString());
 		}
 
+	}
+	
+	private Set<String> getTopTermFromQuery(Query query){
+		Set<String> res = DocumentKeyword.getinstance().getKeywords(query);
+		if (res.size() < 4)return res;
+		
+		Set<String> ret = new TreeSet<String>();
+		for (String v : res){
+			if (v.length() >= 5)
+				ret.add(v);
+			if (ret.size() > 3)break;
+		}
+		
+		return res;
 	}
 
 	private void readCandidates(String diretory) {
