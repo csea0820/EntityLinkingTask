@@ -23,6 +23,9 @@ public class TrainingSetGen {
 
 	private StringBuilder builder = new StringBuilder();
 	
+	private int trueInstanceCnt = 0;
+	private int falseInstanceCnt = 0;
+	
 	public void trainingSetGenerate(String instancesDir,
 			String expectedResultFile) {
 
@@ -46,16 +49,19 @@ public class TrainingSetGen {
 				List<ArticleAttributes> topNSenses = getTopNSenses(file);
 				for (ArticleAttributes art : topNSenses)
 				{
-					if (expectedResult.equals(art.getName()))					
+					if (expectedResult.equals(art.getName()))
+					{
 						art.setCorrectSense(true);
+						trueInstanceCnt++;
+					}
 					
 					builder.append(art.toArffFormat());
 					instancesCnt++;
 				}
 			}
 		}
-		
-		System.out.println("Training Set Size : " + instancesCnt);
+		falseInstanceCnt = instancesCnt - trueInstanceCnt;
+		System.out.println("Training Set Size : " + instancesCnt+",TrueInstancesCnt:"+trueInstanceCnt);
 		Utility.writeToFile(outputFile, builder.toString());
 	}
 	
