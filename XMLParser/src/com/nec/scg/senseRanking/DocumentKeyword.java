@@ -129,7 +129,7 @@ public class DocumentKeyword {
 			for (int i = 0; i < nodes.getLength(); i++) {
 				String content = nodes.item(i).getTextContent().trim()
 						.replaceAll("\n", " ");
-				ret.append(content).append("\n");
+				ret.append(content).append(" ");
 			}
 		} catch (ParserConfigurationException | XPathExpressionException
 				| SAXException | IOException e) {
@@ -142,7 +142,7 @@ public class DocumentKeyword {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+		System.out.println(new DocumentKeyword().getDocContent(new File("D:\\KBPÊý¾Ý¼¯\\TAC2009\\LDC2009E57(documents)\\TAC_2009_KBP_Evaluation_Source_Data\\data\\nw\\afp_eng\\19940517\\AFP_ENG_19940517.0172.LDC2007T07.sgm")));
 	}
 
 }
