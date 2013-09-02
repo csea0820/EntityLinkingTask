@@ -12,4 +12,9 @@ public class Constant {
 	//directory that contains lists of documents for queries
 	public static String queryDocDirectory = "D:\\KBP数据集\\TAC2009\\LDC2009E57(documents)\\TAC_2009_KBP_Evaluation_Source_Data\\data\\nw\\";
 	
+	//directory that contains lists of xml files for candidates
+	public static String KB_DIR = "D:\\KBP数据集\\TAC2009\\TAC_2009_KBP_Evaluation_Reference_Knowledge_Base\\data";
+	
+	//directory that contains sense candidates for each query
+	public static String candidateDirectory = "D:\\TAC_RESULT\\TOTAL";
 }

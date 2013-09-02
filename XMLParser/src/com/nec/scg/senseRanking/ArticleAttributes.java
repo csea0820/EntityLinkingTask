@@ -28,6 +28,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	double ctx_wt;
 	int ctx_ct;
 	double link_combo;
+	double text_sim;
 	
 	boolean correctSense; // used only for training
 	
@@ -72,7 +73,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	
 	public void calLink_combo()
 	{
-		link_combo = 0.5*ctx_sim+2*link_prob;
+		link_combo = 0.5*ctx_sim+0.7*link_prob+text_sim;
 	}
 	
 	public double getLink_combo(){
@@ -89,7 +90,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	@Override
 	public String toString() {
 		return name+"\t"+link_prob+"\t"+editDistance_test+"\t"+substr_test+"\t"+ctx_sim+"\t"
-				+ctx_wt+"\t"+ctx_ct+"\t"+link_combo+"\n";
+				+ctx_wt+"\t"+ctx_ct+"\t"+link_combo+"\t"+text_sim+"\n";
 	}
 	
 	public static ArticleAttributes getArticleFromString(String content){
@@ -104,9 +105,10 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		articleAttr.setCtx_sim(Double.parseDouble(contents[4]));
 		articleAttr.setCtx_wt(Double.parseDouble(contents[5]));
 		articleAttr.setCtx_ct(Integer.parseInt(contents[6]));
-		articleAttr.setLink_prob(Double.parseDouble(contents[7]));
+//		articleAttr.setLink_combo(Double.parseDouble(contents[7]));
+		articleAttr.setText_sim(Double.parseDouble(contents[8]));
 		articleAttr.calLink_combo();
-		
+
 		
 		return articleAttr;
 	}
@@ -122,6 +124,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		sb.append("@attribute CTX_WT real\n");
 		sb.append("@attribute CTX_CT real\n");
 		sb.append("@attribute LINK_COMBO real\n");
+		sb.append("@attribute TEXT_SIM real\n");
 		sb.append("@attribute CORRECT {true,false}\n");
 	
 		return sb.toString();
@@ -136,6 +139,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		instanceValue[4] = ctx_wt;
 		instanceValue[5] = ctx_ct;
 		instanceValue[6] = link_combo;
+		instanceValue[7] = text_sim;
 //		instanceValue[7] = 0;
 
 		return new DenseInstance(1.0,instanceValue);
@@ -146,7 +150,7 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 		
 		sb.append(link_prob).append(",").append(isEditDistance_test()?1:0).append(",").append(substr_test?1:0).
 		append(",").append(ctx_sim).append(",").append(ctx_wt).append(",").append(ctx_ct).append(",").append(link_combo)
-		.append(",").append(correctSense).append("\n");
+		.append(",").append(text_sim).append(",").append(correctSense).append("\n");
 		
 		return sb.toString();
 	}
@@ -189,6 +193,14 @@ public class ArticleAttributes implements Comparable<ArticleAttributes> {
 	
 	public void setLink_combo(double link_combo) {
 		this.link_combo = link_combo;
+	}
+	
+	public void setText_sim(double text_sim) {
+		this.text_sim = text_sim;
+	}
+	
+	public double getText_sim() {
+		return text_sim;
 	}
 	
 	public static List<ArticleAttributes> readSenses(File candiatesFile) {

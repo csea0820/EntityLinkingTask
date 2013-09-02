@@ -24,10 +24,12 @@ public class LinkComboRanking {
 
 	Map<Query, Set<ArticleAttributes>> candidates = new TreeMap<Query, Set<ArticleAttributes>>();
 	Map<String, Set<ArticleAttributes>> link_prob = new TreeMap<String, Set<ArticleAttributes>>();
+	Map<Query, Set<ArticleAttributes>> text_sim = new TreeMap<Query, Set<ArticleAttributes>>();
 
 	public void linkComboRanking() {
 		readCandidatesCtxSim("D:\\TAC_RESULT\\cxt_sim");
 		readCandidatesLinkProb("D:\\TAC_RESULT\\link_prob");
+		readCandidatesTextSim("D:\\TAC_RESULT\\textSim");
 
 		for (String source : link_prob.keySet()) {
 
@@ -47,6 +49,23 @@ public class LinkComboRanking {
 								}
 							}
 							art.calLink_combo();
+						}
+					}
+				}
+			}
+		}
+
+		for (Query query1 : text_sim.keySet()) {
+			for (Query query2 : candidates.keySet()) {
+				if (query2.equals(query1)) {
+					Set<ArticleAttributes> articles = candidates.get(query2);
+					for (ArticleAttributes art : text_sim.get(query1)) {
+						for (ArticleAttributes aa : articles) {
+							if (aa.name.equals(art.name)) {
+								aa.setText_sim(art.getText_sim());
+								aa.calLink_combo();
+								break;
+							}
 						}
 					}
 				}
@@ -73,28 +92,29 @@ public class LinkComboRanking {
 
 			double maxScore = 0.0;
 			ArticleAttributes target = null;
-			
-			Set<ArticleAttributes> temp_art = new TreeSet<ArticleAttributes>(); //按link_combo字段排序
+
+			Set<ArticleAttributes> temp_art = new TreeSet<ArticleAttributes>(); // 按link_combo字段排序
 			for (ArticleAttributes art : candidates.get(query))
 				temp_art.add(art);
-			
+
 			for (ArticleAttributes art : temp_art) {
 				target = art;
 				maxScore = target.link_combo;
 				break;
 			}
-			if ((maxScore < 0.1 && elr.getExpectedResult(query.id).equals("NIL"))
+			if ((maxScore < 0.7 && elr.getExpectedResult(query.id)
+					.equals("NIL"))
 					|| (target != null && target.name.equals(elr
 							.getExpectedResult(query.id)))) {
 				em.returnedRelevantPagesPlus();
 				if ((target != null && target.name.equals(elr
-						.getExpectedResult(query.id))))
-					{
-						cnt++;
-//						System.out.println(query+","+target);
-					}
+						.getExpectedResult(query.id)))) {
+					cnt++;
+					// System.out.println(query+","+target);
+				}
 			}
 		}
+		System.out.println(em.getM_returned_relevant_pages());
 		System.out.println("Precision = " + em.getM_returned_relevant_pages()
 				* 1.0 / em.getM_all_relevant_pages());
 		System.out.println("Match Count = " + cnt);
@@ -105,13 +125,59 @@ public class LinkComboRanking {
 		for (Query query : candidates.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			Set<ArticleAttributes> article = candidates.get(query);
-			Set<ArticleAttributes> temp_art = new TreeSet<ArticleAttributes>(); //按link_combo字段排序
+			Set<ArticleAttributes> temp_art = new TreeSet<ArticleAttributes>(); // 按link_combo字段排序
 			for (ArticleAttributes art : article)
 				temp_art.add(art);
 			for (ArticleAttributes art : temp_art)
 				sb.append(art);
 			Utility.writeToFile("D:\\TAC_RESULT\\linkComboRanking\\" + query
 					+ ".txt", sb.toString());
+		}
+	}
+
+	private void readCandidatesTextSim(String directory) {
+		File dir = new File(directory);
+		if (dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			for (File file : files) {
+				String query = file.getName().split("_")[1];
+				String id = file.getName().split("_")[0];
+				
+				Set<ArticleAttributes> result = new TreeSet<ArticleAttributes>();
+				BufferedReader br = null;
+				FileReader fr = null;
+				String str;
+				// 合并前将结果再做一次过滤，将有{，{，=，：之类的行都去掉
+				try {
+					fr = new FileReader(file);
+					br = new BufferedReader(fr);
+
+					str = br.readLine();
+					while (str != null) {
+						String[] contents = str.split("\t");
+
+						ArticleAttributes articleAttr = new ArticleAttributes(
+								contents[0].replaceAll("_", " "));
+						articleAttr
+								.setText_sim(Double.parseDouble(contents[1]));
+						result.add(articleAttr);
+						str = br.readLine();
+					}
+
+					text_sim.put(new Query(query,Integer.parseInt(id)), result);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						fr.close();
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
 		}
 	}
 

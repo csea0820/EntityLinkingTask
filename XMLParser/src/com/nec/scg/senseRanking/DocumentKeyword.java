@@ -109,7 +109,7 @@ public class DocumentKeyword {
 		Utility.saveCache(caches, "D:\\TAC_RESULT\\documentKeywords.txt");
 	}
 
-	private String getDocContent(File file) {
+	public String getDocContent(File file) {
 
 		StringBuilder ret = new StringBuilder();
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory

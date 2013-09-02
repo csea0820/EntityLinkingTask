@@ -2,13 +2,18 @@ package com.nec.scg.utility;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import com.nec.scg.senseRanking.ArticleAttributes;
+import com.nec.scg.senseRanking.Query;
 
 /**
  * @Author Xiaofeng
@@ -114,6 +119,26 @@ public class Utility {
 		return keywords;
 	}
 	
+	public static  void appendContentToFile(String filePath,String content) {
+		
+		
+		
+		try {
+			File file = new File(filePath);
+			if (file.exists() == false)
+				file.createNewFile();
+			
+			OutputStreamWriter out = new OutputStreamWriter(
+					new FileOutputStream(filePath,true), "UTF-8");
+			out.write(content);
+			out.flush();
+			out.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void saveCache(Map<String,Set<String>> cache,String cache_file){
 		StringBuilder sb = new StringBuilder();
 		
@@ -171,5 +196,60 @@ public class Utility {
 		}
 		
 		return cache;
+	}
+	
+	public static Map<Query,Set<ArticleAttributes>> readCandidates(String diretory) {
+
+		Map<Query,Set<ArticleAttributes>> candidates = new TreeMap<Query,Set<ArticleAttributes>>();
+		File dir = new File(diretory);
+
+		if (dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			for (File file : files) {
+
+				String[] queryInfo = file.getName().split("_");
+				String query = queryInfo[1];
+
+				int id = Integer.parseInt(queryInfo[3].substring(0, queryInfo[3].length()-4));
+				Set<ArticleAttributes> candidate = null;
+
+//				if (candidates.containsKey(query))
+//					continue;
+
+				BufferedReader br = null;
+				FileReader fr = null;
+				String str;
+
+				try {
+					fr = new FileReader(file);
+					br = new BufferedReader(fr);
+
+					str = br.readLine();
+					candidate = new TreeSet<ArticleAttributes>();
+					while (str != null) {
+						String[] contents = str.split("\t");
+						if (contents.length == 3)
+							candidate.add(new ArticleAttributes(contents[0], Boolean.parseBoolean(contents[2]), Boolean.parseBoolean(contents[1])));
+						str = br.readLine();
+					}
+					candidates.put(new Query(query,id), candidate);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}finally{
+					try {
+						fr.close();
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+		
+		return candidates;
+
 	}
 }

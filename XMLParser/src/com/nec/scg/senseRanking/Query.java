@@ -68,4 +68,10 @@ public class Query implements Comparable<Query>{
 		return query;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		Query o = (Query) obj;
+		return this.id == o.id;
+	}
+	
 }
